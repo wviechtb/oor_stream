@@ -1,0 +1,5 @@
+subj	age	sex	grp	var1	var2	var3	var4
+1	22	female	control	4	yes	some longer text	5
+2	19	male	control	2	no	with spaces	2
+3	27	male	treatment	5	no		
+4	24	female	treatment	6	no	and other !$&@ symbols	5

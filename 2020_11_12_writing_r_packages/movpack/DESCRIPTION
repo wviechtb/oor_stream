@@ -1,0 +1,8 @@
+Package: movpack
+Version: 0.1-0
+Date: 2020-11-12
+Title: Computing and Plotting Moving Averages
+Authors@R: person("Wolfgang", "Viechtbauer", email = "wvb@wvbauer.com", role = c("aut","cre"))
+Depends: R (>= 4.0.0)
+Description: A simple package for computing and plotting the moving average of a numeric vector.
+License: GPL (>=2)

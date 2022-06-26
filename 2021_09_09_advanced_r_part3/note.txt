@@ -1,0 +1,19 @@
+############################################################################
+
+# Open Online R Stream (https://www.wvbauer.com/doku.php/live_streams)
+#
+# By:   Wolfgang Viechtbauer (https://www.wvbauer.com)
+# Date: 2021-09-09
+#
+# Topic(s):
+# - Advanced R (sections 3.1-3.4) by Hadley Wickham
+#   https://adv-r.hadley.nz
+# - Advanced R Solutions by Grosser, Bumann, and Wickham
+#   https://advanced-r-solutions.rbind.io
+#
+# last updated: 2021-09-09
+
+# Note: For this stream, I did not create a script files, since the code I
+# covered was simply the code that is presented in the book.
+
+############################################################################

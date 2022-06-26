@@ -1,0 +1,4 @@
+exportPattern("^[^\\.]")
+
+S3method(print, movavg)
+S3method(plot, movavg)
