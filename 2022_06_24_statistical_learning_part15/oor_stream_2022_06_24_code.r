@@ -31,7 +31,7 @@
 # load the MASS package
 library(MASS)
 
-# simulate two
+# simulate two variables with true correlation equal to 0.8
 
 set.seed(1234)
 S <- matrix(c(100,0.8*10*6,0.8*10*6,36), nrow=2, ncol=2)
