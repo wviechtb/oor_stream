@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 6.4.1 - 6.4.4
 #
-# last updated: 2022-07-29
+# last updated: 2022-08-04
 
 ############################################################################
 
@@ -222,8 +222,8 @@ ylims <- c(min(cbind(mat.MSE.test, mat.MSE.test.fws), na.rm=TRUE),
 # forward stepwise selection
 
 par(mfrow=c(1,2))
-boxplot(mat.MSE.test,     cex=0.5, xlab="Degrees of Freedom", ylab="Test MSE", ylim=ylims)
-boxplot(mat.MSE.test.fws, cex=0.5, xlab="Degrees of Freedom", ylab="Test MSE", ylim=ylims)
+boxplot(mat.MSE.test,     cex=0.5, xlab="Degrees of Freedom", ylab="Test MSE", ylim=ylims, main="Lasso")
+boxplot(mat.MSE.test.fws, cex=0.5, xlab="Degrees of Freedom", ylab="Test MSE", ylim=ylims, main="Stepwise Selection")
 
 # conclusions: we know that the true model has 20 true predictors; however,
 # the median test MSE based on lasso regression is lowest for models with a
