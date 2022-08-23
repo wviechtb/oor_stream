@@ -3,7 +3,7 @@
 # Open Online R Stream (https://www.wvbauer.com/doku.php/live_streams)
 #
 # By:   Wolfgang Viechtbauer (https://www.wvbauer.com)
-# Date: 2022-08-12
+# Date: 2022-08-11
 #
 # Topic(s):
 # - R Package Development
