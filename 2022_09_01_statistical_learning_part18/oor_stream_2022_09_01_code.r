@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 7.1 - 7.4.3
 #
-# last updated: 2022-09-05
+# last updated: 2022-09-16
 
 ############################################################################
 
@@ -37,14 +37,14 @@ abline(res, lwd=5, col="blue")
 res <- lm(y ~ x + I(x^2))
 summary(res)
 
-# to add the regression 'line' (i.e., curve) to the plot, we can no longer
-# just use abline(); instead, we use predict() to compute predicted values at
-# the chosen values of 'x' (as given in the 'newdat' data frame)
+# to add the regression 'line' (i.e., curve) to the plot, we can no longer use
+# abline(); instead, we use predict() to compute the predicted values at the
+# chosen values of 'x' (as given in the 'newdat' data frame)
 newdat <- data.frame(x=seq(0,1,length=1000))
 pred <- predict(res, newdata=newdat)
 head(cbind(x=newdat$x, pred))
 
-# add the regression line to the scatterplot
+# add the regression line (curve) to the scatterplot
 lines(newdat$x, pred, lwd=5, col="red")
 
 # add legend
@@ -53,7 +53,7 @@ legend("topleft", inset=.02, lty="solid", col=c("blue","red"), lwd=5,
 
 # what do the coefficients in such a quadratic model mean? and how does such a
 # model lead to such a curvilinear relationship between x and y?
-
+#
 # the model is given by:
 #
 # y = beta0 + beta1 * x + beta2 * x^2 + e
@@ -81,7 +81,7 @@ legend("topleft", inset=.02, lty="solid", col=c("blue","red"), lwd=5,
 # what is happening to the slope as x increases? the slope increases, because
 # beta2 (in our example above) is positive; so the slope of x changes as a
 # function of x, which is the reason why we get a curve instead of a line; and
-# when x = 1, the slope is: beta + beta2
+# when x = 1, the slope is: beta1 + beta2
 
 # install (if necessary) the ISLR2
 #install.packages("ISLR2")
@@ -103,7 +103,7 @@ res <- lm(wage ~ age + I(age^2) + I(age^3) + I(age^4), data=dat)
 summary(res)
 
 # Figure 7.1 (left panel)
-plot(wage ~ age, data=dat, col="skyblue3", cex=0.5)
+plot(wage ~ age, data=dat, col="skyblue3", cex=0.7)
 
 # add regression line/curve (with 95% CI) to the plot
 newdat <- data.frame(age=seq(18,80,length=1000))
@@ -117,7 +117,8 @@ lines(newdat$age, pred$upr, lwd=3, col="blue", lty="dashed")
 b <- cbind(coef(res))
 b
 
-# extract the var-cov matrix of the regression coefficients (called C in the book)
+# extract the var-cov matrix of the regression coefficients (in the book, this
+# is denoted as C with a hat)
 vb <- vcov(res)
 vb
 
@@ -130,7 +131,7 @@ l0 <- cbind(1, 25, 25^2, 25^3, 25^4)
 pred <- c(l0 %*% b)
 pred
 
-# compare with what we get from predict()
+# compare this with what we get from predict()
 predict(res, newdata=data.frame(age=25))
 
 # also get the standard error of the predicted value
@@ -221,7 +222,7 @@ rbind(coef(res)[1], coef(res)[1]+coef(res)[2],
       coef(res)[1]+coef(res)[3], coef(res)[1]+coef(res)[4])
 
 # Figure 7.2 (left panel)
-plot(wage ~ age, data=dat, col="darkgray", cex=0.6)
+plot(wage ~ age, data=dat, col="darkgray", cex=0.7)
 
 # add the regression line (with 95% CI) to the scatterplot
 newdat <- data.frame(age=18:80)
@@ -235,7 +236,7 @@ lines(newdat$age, pred$upr, lwd=3, col="green4", lty="dashed")
 # what if we would cut up age into many more groups?
 dat$agegrp <- cut(dat$age, breaks=20, labels=1:20)
 res <- lm(wage ~ agegrp, data=dat)
-plot(wage ~ age, data=dat, col="darkgray", cex=0.6)
+plot(wage ~ age, data=dat, col="darkgray", cex=0.7)
 newdat$agegrp <- cut(newdat$age, breaks=20, labels=1:20)
 pred <- predict(res, newdata=newdat)
 lines(newdat$age, pred, lwd=5, col="green4")
@@ -285,7 +286,7 @@ lines(newdat$age, plogis(pred$upr), lwd=3, col="green4", lty="dashed")
 # 7.4.1: Piecewise Polynomials
 
 # tried to identify which points are shown in Figure 7.3 (could only identify
-# 98 points in the figure; I suspect that the sub-sample included a 100 data
+# 98 points in the figure; I suspect that the sub-sample included 100 data
 # points, so the sub-sample used below isn't exactly the same as used in the
 # book, but should be close enough)
 
@@ -298,16 +299,13 @@ pos <- c(13, 33, 40, 43, 56, 58, 69, 149, 163, 171, 179, 192, 196, 248, 263,
 2147, 2208, 2246, 2299, 2471, 2533, 2598, 2600, 2625, 2708, 2850, 2891, 2907)
 sub <- dat[pos,]
 
-#set.seed(1240)
-#sub <- dat[sample(nrow(dat), 100),]
+# fit piecewise cubic polynomials
+res.lo <- lm(wage ~ poly(age, 3), data=sub, subset=age <= 50)
+res.hi <- lm(wage ~ poly(age, 3), data=sub, subset=age >  50)
 
 # Figure 7.3 (top left panel)
 plot(wage ~ age, data=sub)
 abline(v=50, lty="dotted")
-
-# fit piecewise cubic polynomials
-res.lo <- lm(wage ~ poly(age, 3), data=sub, subset=age <= 50)
-res.hi <- lm(wage ~ poly(age, 3), data=sub, subset=age >  50)
 
 # add the regression lines/curves to the plot
 newdat <- data.frame(age=seq(18,50,length=1000))
@@ -365,7 +363,8 @@ lines(newdat$age, pred$upr, lwd=3, col="red", lty="dashed")
 # sidenote: instead of fitting the two piecewise cubic polynomials as we did
 # for Figure 7.3, top left panel, we could fit a single model that provides
 # the same fit
-res <- lm(wage ~ age + I(age^2) + I(age^3) + tbpd(age,50,0) + tbpd(age,50,1) + tbpd(age,50,2) + tbpd(age,50,3), data=sub)
+res <- lm(wage ~ age + I(age^2) + I(age^3) + tbpd(age,50,0) +
+          tbpd(age,50,1) + tbpd(age,50,2) + tbpd(age,50,3), data=sub)
 summary(res)
 
 ############################################################################
@@ -376,14 +375,15 @@ summary(res)
 knots <- c(30,45,60)
 
 # Figure 7.4
-plot(wage ~ age, data=sub)
+plot(wage ~ age, data=sub, xlab="Age", ylab="Wage")
 abline(v=knots, lty="dotted")
 
 # fit the cubic spline model
-res <- lm(wage ~ age + I(age^2) + I(age^3) + tbpd(age,30,3) + tbpd(age,45,3) + tbpd(age,60,3), data=sub)
+res <- lm(wage ~ age + I(age^2) + I(age^3) + tbpd(age,knots[1],3) +
+          tbpd(age,knots[2],3) + tbpd(age,knots[3],3), data=sub)
 summary(res)
 
-# add the regression lines/curves to the plot
+# add the regression line/curve to the plot
 newdat <- data.frame(age=seq(18,80,length=1000))
 pred <- predict(res, newdata=newdat, interval="confidence")
 pred <- as.data.frame(pred)
@@ -391,7 +391,67 @@ lines(newdat$age, pred$fit, col="blue", lwd=5)
 lines(newdat$age, pred$lwr, lwd=3, col="blue", lty="dashed")
 lines(newdat$age, pred$upr, lwd=3, col="blue", lty="dashed")
 
-# to fit the 'natural cubic spline model', we will use the 'rms' package
+# load the splines package
+library(splines)
+
+# we can use bs() from the splines package to fit the same model
+res <- lm(wage ~ bs(age, knots=knots), data=sub)
+summary(res)
+
+# note: the coefficients are different (the way bs() computes the spline terms
+# is somewhat different), but the fit of the model is the same (note the
+# identical residual standard error, R^2, and so on); hence, the following
+# will just add the same line/curve (and CI bounds) to the plot as above
+pred <- predict(res, newdata=newdat, interval="confidence")
+pred <- as.data.frame(pred)
+lines(newdat$age, pred$fit, col="blue", lwd=5)
+lines(newdat$age, pred$lwr, lwd=3, col="blue", lty="dashed")
+lines(newdat$age, pred$upr, lwd=3, col="blue", lty="dashed")
+
+# fit the natural cubic spline model
+res <- lm(wage ~ ns(age, knots=knots), data=sub)
+summary(res)
+
+# add the regression line/curve to the plot
+pred <- predict(res, newdata=newdat, interval="confidence")
+pred <- as.data.frame(pred)
+lines(newdat$age, pred$fit, col="red", lwd=5)
+lines(newdat$age, pred$lwr, lwd=3, col="red", lty="dashed")
+lines(newdat$age, pred$upr, lwd=3, col="red", lty="dashed")
+
+# in the natural cubic spline model, the model assumes that the relationship
+# between x and y is linear beyond the 'boundary knots', which are by default
+# set at the min(x) and max(x) values
+attributes(ns(dat$age, knots=knots))
+range(dat$age)
+
+# an even more restricted model would arise if we use knots[c(1,3)] as the
+# boundary knots (note: this model was not considered in the book)
+res <- lm(wage ~ ns(age, knots=knots[2], Boundary.knots=knots[c(1,3)]), data=sub)
+summary(res)
+
+# add the regression line/curve to the plot
+pred <- predict(res, newdata=newdat, interval="confidence")
+pred <- as.data.frame(pred)
+lines(newdat$age, pred$fit, col="green", lwd=5)
+lines(newdat$age, pred$lwr, lwd=3, col="green", lty="dashed")
+lines(newdat$age, pred$upr, lwd=3, col="green", lty="dashed")
+
+# note that according to this model (the green line), the relationship between
+# age and wage is linear for age values below 30 and for age values above 60
+
+# add legend
+legend("topright", inset=.02, lty="solid", col=c("red","blue","green"), lwd=5,
+       legend=c("Natural Cubic Spline Model", "Cubic Spline Model",
+                "Alternative Natural Cubic Spline"), bg="white")
+
+############################################################################
+
+# instead of using ns(), we can use the 'rms' package to fit such a model
+
+# the 'rms' package is explained in detail in this book: Harrell, F. E., Jr.
+# (2015). Regression modeling strategies: With applications to linear models,
+# logistic and orginal regression, and survival analysis (2nd ed.). Springer.
 
 # install the rms package
 #install.packages("rms")
@@ -399,18 +459,63 @@ lines(newdat$age, pred$upr, lwd=3, col="blue", lty="dashed")
 # load the rms package
 library(rms)
 
-# fit the 'natural cubic spline model' (also called 'restricted cubic spline)
+# note: when using rcs(), the first and last knot values are the boundary
+# knots, so to get the same natural cubic spline model as above (the red
+# line), we have to add min(x) and max(x) to the knots
+knots <- c(19,30,45,60,77)
+
+# fit the natural cubic spline model (also called 'restricted cubic spline')
 res <- lm(wage ~ rcs(age, parms=knots), data=sub)
 summary(res)
 
-# add the regression lines/curves to the plot
+# add the regression line/curve to the plot
 pred <- predict(res, newdata=newdat, interval="confidence")
 pred <- as.data.frame(pred)
 lines(newdat$age, pred$fit, col="red", lwd=5)
 lines(newdat$age, pred$lwr, lwd=3, col="red", lty="dashed")
 lines(newdat$age, pred$upr, lwd=3, col="red", lty="dashed")
 
+# this just adds the same red line (and CI) as already shown in the plot
+
+############################################################################
+
+# be careful when using rcs() in combination with lm(); the above works fine,
+# since we manually specified the knot positions; however, instead of doing
+# that, one can also just specify how many knots we want and rcs() will pick
+# the knot positions automatically
+res <- lm(wage ~ rcs(age, parms=5), data=sub)
+summary(res)
+
+# let's see which ones it picked
+knots <- attributes(rcs(dat$age, parms=5))$parms
+knots
+
+# draw the scatterplot again and add the knot positions
+plot(wage ~ age, data=sub, xlab="Age", ylab="Wage")
+abline(v=knots, lty="dotted")
+
+# note: the knot positions are based on certain quantiles of the x variable;
+# for 5 knots, rcs() uses quantiles according to the following probabilities
+quantile(dat$age, c(.05, .275, .50, .725, .95))
+
+# if you now use the following code, then the predicted values are *wrong*
+newdat <- data.frame(age=seq(18,80,length=1000))
+pred <- predict(res, newdata=newdat)
+lines(newdat$age, pred, col="red", lwd=5)
+
+# this happens because the knot positions are now based on the data given to
+# predict(), which are different than the ones used in the actual model
+attributes(rcs(newdat$age, parms=5))$parms
+
+# the rms package provides special functions for fitting regression models so
+# that when predict() is used, the predicted values are correct
+res <- ols(wage ~ rcs(age, parms=5), data=sub)
+res
+pred <- predict(res, newdata=newdat)
+lines(newdat$age, pred, col="blue", lwd=5)
+
+# add legend
 legend("topright", inset=.02, lty="solid", col=c("red","blue"), lwd=5,
-       legend=c("Natural Cubic Spline", "Cubic Spline"), bg="white")
+       legend=c("Wrong Predictions", "Correct Predictions"), bg="white")
 
 ############################################################################
