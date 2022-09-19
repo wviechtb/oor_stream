@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 7.4.4 - 7.5.2
 #
-# last updated: 2022-09-16
+# last updated: 2022-09-19
 
 ############################################################################
 
@@ -217,7 +217,7 @@ length(coef(res))
 # this is the highest number for the effective degrees of freedom (i.e., when
 # lambda=0); can obtain the same fit with smooth.spline() if we set spar=-1.5
 # and all.knot=TRUE
-res <- smooth.spline(dat$age, dat$wage, , spar=-1.5, all.knots=TRUE)
+res <- smooth.spline(dat$age, dat$wage, spar=-1.5, all.knots=TRUE)
 res
 
 # if we allow lambda > 0, then the smoothing spline becomes less wiggly
