@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 8.1.1 - 8.1.2
 #
-# last updated: 2022-10-01
+# last updated: 2022-10-02
 
 ############################################################################
 
@@ -240,12 +240,15 @@ text(res)
 # training and testing datasets were created for the example in the book
 
 # prune the tree
-ptree <- prune.tree(res)
-ptree
+ptree.train <- prune.tree(res)
+ptree.train
+
+# get the MSEs for trees of different sizes
+MSE.train <- ptree.train$dev/nrow(dat.train)
 
 # plot the mean squared error for the training data against the tree size
-plot(ptree$size, ptree$dev/nrow(dat.train), type="o", pch=19, lwd=3,
-     ylim=c(0,1), xlab="Tree Size", ylab="Mean Squared Error", xaxt="n")
+plot(ptree.train$size, MSE.train, type="o", pch=19, lwd=3, ylim=c(0,1),
+     xlab="Tree Size", ylab="Mean Squared Error", xaxt="n")
 axis(side=1, 1:10)
 
 # cross-validation (6-fold) to determined an appropriate tree size
@@ -264,7 +267,7 @@ for (i in 1:6) {
          pred <- mean(dat.train$logSalary[split!=i])
       } else {
          ptree <- prune.tree(tmp, best=j)
-         pred <- predict(ptree, newdata=dat.train[split==i,])
+         pred <- predict(prune.tree(tmp, best=j), newdata=dat.train[split==i,])
       }
       MSEmat[i,j] <- mean((dat.train$logSalary[split==i] - pred)^2)
    }
@@ -316,6 +319,92 @@ for (i in 1:100) {
 
 lines(1:10, MSE.cv, type="o", pch=19, lwd=3, col="#009f86")
 lines(1:10, MSE.test, type="o", pch=19, lwd=3, col="#ce6017")
+
+############################################################################
+
+# Figure 8.5 shows standard error bands around the MSE values, but the book
+# doesn't explain how these were created. An obvious approach would be to do
+# bootstrapping. However, even doing that isn't entirely obvious, since one
+# could bootstrap the entire process (including splitting the data into the
+# training and test datasets) or assume that the split that was done above is
+# fixed and bootstrap within the splits. Below I bootstrap the entire process,
+# creating new splits based on the bootstrap sample.
+
+set.seed(1234)
+
+# number of bootstrap iterations
+iters <- 1000
+
+MSEmat.train <- matrix(NA, nrow=iters, ncol=20)
+MSEmat.cv    <- matrix(NA, nrow=iters, ncol=20)
+MSEmat.test  <- matrix(NA, nrow=iters, ncol=20)
+
+for (i in 1:iters) {
+
+   # take bootstrap sample
+   tmp <- dat[sample(nrow(dat), replace=TRUE),]
+
+   # create a training and a test dataset
+   id.train  <- sample(nrow(tmp), round(nrow(tmp)/2))
+   tmp.train <- tmp[id.train,]
+   tmp.test  <- tmp[-id.train,]
+
+   # build tree in the training data
+   res <- tree(logSalary ~ AtBat + Hits + HmRun + Runs + RBI + Walks + Years + PutOuts + Assists, data=tmp.train, control=tree.control(nobs=nrow(dat.train), minsize=2))
+
+   # prune the tree
+   ptree <- prune.tree(res)
+
+   # get the MSEs for trees of different sizes
+   MSEmat.train[i,ptree$size] <- ptree$dev/nrow(tmp.train)
+
+   # cross-validation
+   res.cv <- cv.tree(res, K=6)
+   MSEmat.cv[i,res.cv$size] <- res.cv$dev/nrow(tmp.train)
+
+   # compute the test MSEs
+   for (j in 1:max(ptree$size)) {
+      if (j == 1) {
+         pred <- mean(tmp.train$logSalary)
+      } else {
+         pred <- predict(prune.tree(res, best=j), newdata=tmp.test)
+      }
+      MSEmat.test[i,j] <- mean((tmp.test$logSalary - pred)^2)
+   }
+
+}
+
+# compute the mean and SDs of the training data MSEs for different tree sizes
+
+means <- apply(MSEmat.train, 2, mean, na.rm=TRUE)[1:10]
+sds   <- apply(MSEmat.train, 2, sd,   na.rm=TRUE)[1:10]
+
+# plot the means against tree sizes and add arrow bands based on the SDs
+
+plot(1:10, means, type="o", pch=19, lwd=3, ylim=c(0,1),
+     xlab="Tree Size", ylab="Mean Squared Error", xaxt="n")
+axis(side=1, 1:10)
+arrows(1:10, means-sds, 1:10, means+sds, code=3, angle=90, length=0.10)
+
+# add the line for the cross-validated MSE to the plot
+
+means <- apply(MSEmat.cv, 2, mean, na.rm=TRUE)[1:10]
+sds   <- apply(MSEmat.cv, 2, sd,   na.rm=TRUE)[1:10]
+
+lines(1:10, means, type="o", pch=19, lwd=3, col="#009f86")
+arrows(1:10, means-sds, 1:10, means+sds, code=3, angle=90, length=0.10, col="#009f86")
+
+# add the line for the test MSE to the plot
+
+means <- apply(MSEmat.test, 2, mean, na.rm=TRUE)[1:10]
+sds   <- apply(MSEmat.test, 2, sd,   na.rm=TRUE)[1:10]
+
+lines(1:10, means, type="o", pch=19, lwd=3, col="#ce6017")
+arrows(1:10, means-sds, 1:10, means+sds, code=3, angle=90, length=0.10, col="#ce6017")
+
+# add a legend
+legend("topright", inset=.02, lty="solid", col=c("black","#009f86","#ce6017"), lwd=3,
+       legend=c("Training", "Cross-Validation", "Test"))
 
 ############################################################################
 
