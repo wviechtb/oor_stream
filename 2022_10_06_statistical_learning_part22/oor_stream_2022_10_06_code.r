@@ -9,11 +9,11 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 8.1.3 - 8.2.1
 #
-# last updated: 2022-10-07
+# last updated: 2022-10-13
 
 ############################################################################
 
-# install (if necessary) the tree
+# install (if necessary) the tree package
 #install.packages("tree")
 
 # load the tree package
