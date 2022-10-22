@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 9.1.1 - 9.2.2
 #
-# last updated: 2022-10-21
+# last updated: 2022-10-22
 
 ############################################################################
 
@@ -197,17 +197,8 @@ arrows(dat$x1[mindist], dat$x2[mindist],
        (b1*(-b2*dat$x1[mindist] + b1*dat$x2[mindist]) - b2*b0) / (b1^2 + b2^2),
        code=3, length=0.15, lwd=2)
 
-# figure out the value we need to add/subtract to the intercept for the margin:
-#
-# 1) compute the slope of the line for the shortest/perpendicular distance to
-#    the hyperplane, then turn that slope into the angle with atan(slope):
-#    https://en.wikipedia.org/wiki/Grade_(slope)#Angle_from_a_tangent_gradient
-# 2) using the law of sines (https://en.wikipedia.org/wiki/Law_of_sines), we
-#    can turn that angle into the vertical distance with M / sin(angle)
-
-angle <- atan(abs((dat$x2[1] - b1*(-b2*dat$x1[1] + b1*dat$x2[1]) + b2*b0) /
-                  (dat$x1[1] - b2*( b2*dat$x1[1] - b1*dat$x2[1]) + b1*b0)))
-margin <- M / sin(angle)
+# figure out the value we need to add/subtract to the intercept for the margin
+abs(dat$x2[mindist] - (-b0/b2 + -b1/b2 * dat$x1[mindist]))[1]
 
 # add the margin to the plot
 abline(a = -b0/b2 - margin, b = -b1/b2, lwd=3, lty="dotted")
@@ -363,9 +354,7 @@ for (i in 1:length(costvals)) {
    M <- dist[maxdist]
 
    # figure out the value we need to add/subtract to the intercept for the margin
-   angle <- atan(abs((dat$x2[maxdist] - b1*(-b2*dat$x1[maxdist] + b1*dat$x2[maxdist]) + b2*b0) /
-                     (dat$x1[maxdist] - b2*( b2*dat$x1[maxdist] - b1*dat$x2[maxdist]) + b1*b0)))
-   margin <- M / sin(angle)
+   margin <- abs(dat$x2[maxdist] - (-b0/b2 + -b1/b2 * dat$x1[maxdist]))[1]
 
    # add the margin to the plot
    abline(a = -b0/b2 - margin, b = -b1/b2, lwd=3, lty="dotted")
