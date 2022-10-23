@@ -197,8 +197,11 @@ arrows(dat$x1[mindist], dat$x2[mindist],
        (b1*(-b2*dat$x1[mindist] + b1*dat$x2[mindist]) - b2*b0) / (b1^2 + b2^2),
        code=3, length=0.15, lwd=2)
 
-# figure out the value we need to add/subtract to the intercept for the margin
-abs(dat$x2[mindist] - (-b0/b2 + -b1/b2 * dat$x1[mindist]))[1]
+# calculate value we need to add/subtract to the intercept for the margin
+margin <- abs(dat$x2[mindist] - (-b0/b2 + -b1/b2 * dat$x1[mindist]))[1]
+
+# this can be done even simpler
+margin <- sqrt(1 + (b1/b2)^2) * M
 
 # add the margin to the plot
 abline(a = -b0/b2 - margin, b = -b1/b2, lwd=3, lty="dotted")
@@ -353,8 +356,8 @@ for (i in 1:length(costvals)) {
    maxdist <- dist == max(dist[1:nrow(dat) %in% res.svm$index & res.svm$fitted == dat$fgroup])
    M <- dist[maxdist]
 
-   # figure out the value we need to add/subtract to the intercept for the margin
-   margin <- abs(dat$x2[maxdist] - (-b0/b2 + -b1/b2 * dat$x1[maxdist]))[1]
+   # calculate value we need to add/subtract to the intercept for the margin
+   margin <- sqrt(1 + (b1/b2)^2) * M
 
    # add the margin to the plot
    abline(a = -b0/b2 - margin, b = -b1/b2, lwd=3, lty="dotted")
