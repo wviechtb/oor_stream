@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 9.1.1 - 9.2.2
 #
-# last updated: 2022-10-22
+# last updated: 2022-11-10
 
 ############################################################################
 
@@ -356,6 +356,11 @@ for (i in 1:length(costvals)) {
    maxdist <- dist == max(dist[1:nrow(dat) %in% res.svm$index & res.svm$fitted == dat$fgroup])
    M <- dist[maxdist]
 
+   b0 <- coef(res.svm)[[1]]
+   b1 <- coef(res.svm)[[2]]
+   b2 <- coef(res.svm)[[3]]
+   M <- 1 / sqrt(b1^2 + b2^2)
+
    # calculate value we need to add/subtract to the intercept for the margin
    margin <- sqrt(1 + (b1/b2)^2) * M
 
@@ -401,13 +406,14 @@ c(result$getValue(beta))
 # https://en.wikipedia.org/wiki/Support_vector_machine#Soft-margin
 
 minfun <- function(par, x1, x2, y, lambda)
-   sum(pmax(0, 1 - y * (par[1] + par[2]*x1 + par[3]*x2))) + lambda/2 * (par[2]^2 + par[3])
+   sum(pmax(0, 1 - y * (par[1] + par[2]*x1 + par[3]*x2))) + lambda/2 * (par[2]^2 + par[3]^2)
 
 res <- nlminb(c(0.2,-1,0.5), minfun, x1=dat$x1, x2=dat$x2, y=dat$y, lambda=1/cost)
 res$par
 
-# sort of close; this is actually a bit of a tricky minimization problem
-# because of pmax(0, ...), since different values for par could lead to the
-# same value of minfun()
+# quite close; this is actually a bit of a tricky minimization problem because
+# of pmax(0, ...), since different values for par could lead to the same value
+# of minfun() (or it leads to a 'non-smooth' objective function, which can
+# also be problematic for optimizers like nlminb())
 
 ############################################################################
