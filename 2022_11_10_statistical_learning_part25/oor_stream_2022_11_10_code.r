@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 9.3 - 9.5
 #
-# last updated: 2022-11-11
+# last updated: 2022-11-18
 
 ############################################################################
 
@@ -411,8 +411,6 @@ mean(errorrate.svm) # 0.05951111
 
 errors <- data.frame(errorrate.glm, errorrate.svc, errorrate.svm)
 
-png(filename="comp_glm_svm.png", res=300, width=3600, height=1800, type="cairo")
-
 par(mar=c(5,11,2,2))
 boxplot(errors, horizontal=TRUE, las=1, range=0, xlab="Test Error Rate",
         col=c("#1e90ffaa", "#b22222aa", "#228b22aa"), boxwex=0.6,
@@ -421,8 +419,6 @@ pts <- lapply(errors, jitter, amount=.02)
 pts <- lapply(pts, pmax, 0)
 stripchart(pts, add=TRUE, pch=21, cex=0.5, method="jitter", jitter=0.2,
            col=rgb(0,0,0,.2), bg=rgb(0,0,0,.1))
-
-dev.off()
 
 # also saved the cost and gamma values above; we can see that depending on the
 # split, the 'best' values for these parameters can differ
