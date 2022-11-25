@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 10.1 - 10.2
 #
-# last updated: 2022-11-18
+# last updated: 2022-11-24
 
 ############################################################################
 
@@ -417,7 +417,7 @@ dat.test$y  <- as.factor(load_label_file("t10k-labels-idx1-ubyte"))
 
 # view test image
 show_digit(dat.train[3,])
-dat.train.label[3]
+dat.train$y[3]
 
 ############################################################################
 
@@ -491,6 +491,9 @@ pred <- apply(pred, 1, which.max) - 1
 # test error rate
 mean(dat.test$y != pred)
 
+# show how often each of the numbers is misclassified
+table(dat.test$y[which(dat.test$y != pred)])
+
 # set up the model (using dropout regularization)
 model <- keras_model_sequential() |>
    layer_dense(units=256, input_shape=784, activation="relu") |>
@@ -518,6 +521,9 @@ pred <- apply(pred, 1, which.max) - 1
 # test error rate
 mean(dat.test$y != pred)
 
+# show how often each of the numbers is misclassified
+table(dat.test$y[which(dat.test$y != pred)])
+
 ############################################################################
 
 # use keras to fit the multinomial logistic regression model
@@ -537,5 +543,8 @@ system.time(res <- fit(model, X, y, epochs=30, batch_size=128, validation_split=
 pred <- predict(model, as.matrix(dat.test[-785]))
 pred <- apply(pred, 1, which.max) - 1
 mean(dat.test$y != pred)
+
+# show how often each of the numbers is misclassified
+table(dat.test$y[which(dat.test$y != pred)])
 
 ############################################################################
