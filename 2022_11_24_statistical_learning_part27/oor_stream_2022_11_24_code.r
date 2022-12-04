@@ -9,9 +9,12 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 10.3 - 10.4
 #
-# last updated: 2022-11-25
+# last updated: 2022-12-02
 
 ############################################################################
+
+# to supress info and warning messages when loading tensorflow
+Sys.setenv(TF_CPP_MIN_LOG_LEVEL = "2")
 
 ### 10.3: Convolutional Neural Networks
 
@@ -63,9 +66,9 @@ library(jpeg)
 index <- sample(50000, 25)
 
 # draw the image for these 25 randomly selected images
-#par(mar=c(0,0,0,0), mfrow=c(5,5))
-#for (i in index)
-   #plot(as.raster(x_train[i,,,]))
+par(mar=c(0,0,0,0), mfrow=c(5,5))
+for (i in index)
+   plot(as.raster(x_train[i,,,]))
 
 # there are 100 classes and for each there are 500 images
 table(g_train)
@@ -75,7 +78,7 @@ y_train <- to_categorical(g_train, 100)
 dim(y_train)
 
 # set the seed to make results reproducible
-#use_session_with_seed(1234) # this will be deprecated in the future
+#use_session_with_seed(42) # this will be deprecated in the future
 tensorflow::set_random_seed(42)
 
 # set up the model
@@ -145,6 +148,38 @@ mean(g_test == pred)
 
 # accuracy when randomly choosing one of the 100 labels (about 1%)
 mean(g_test == sample(100, 10000, replace=TRUE) - 1)
+
+############################################################################
+
+# try an even simpler multionomial logistic regression model that only uses
+# the mean of the 32x32 pixels for each color as predictors (so in essence,
+# these variables reflect how much red, green, and blue is in an image)
+
+# compute the mean for each color
+x_train_col <- apply(x_train, c(1,4), mean)
+x_test_col  <- apply(x_test,  c(1,4), mean)
+
+# examine the first 6 rows of x_train
+head(x_train_col)
+
+# set the seed to make results reproducible
+tensorflow::set_random_seed(42)
+
+# set up the model
+model <- keras_model_sequential() |>
+   layer_dense(units=100, input_shape=3, activation="softmax") |>
+   compile(loss="categorical_crossentropy", optimizer="rmsprop", metrics="accuracy")
+
+# summary information about the model
+summary(model)
+
+# fit model
+system.time(res <- fit(model, x_train_col, y_train, epochs=30, batch_size=128, validation_split=0.2))
+
+# accuracy (about 3-4%)
+pred <- predict(model, x_test_col)
+pred <- apply(pred, 1, which.max) - 1
+mean(g_test == pred)
 
 ############################################################################
 
@@ -255,13 +290,15 @@ mean(y_test == pred)
 
 # for comparison, fit the same model but using a non-sparse feature matrix
 
-x_train_1h <- lapply(x_train, function(x) {
+x_train_1h_non_sparse <- lapply(x_train, function(x) {
    mat <- rep(0,10000)
    mat[x] <- 1
    return(mat)
 })
-x_train_1h <- do.call(rbind, x_train_1h)
+x_train_1h_non_sparse <- do.call(rbind, x_train_1h_non_sparse)
 
+# this takes about 35 seconds on my computer (with the sparse feature matrix
+# above, it only took 2-3 seconds)
 system.time(res <- glmnet(x_train_1h_non_sparse, y_train, family="binomial",
                           standardize=FALSE, lambda=res.cv$lambda.min))
 pred <- predict(res, x_test_1h, type="class")
@@ -288,7 +325,7 @@ weights <- get_weights(model)
 res <- fit(model, x_train_1h, y_train, epochs=20, batch_size=512, validation_split=0.2)
 
 # plot the loss/accuracy as a function of epochs
-#plot(res)
+plot(res)
 
 # according to this graph, the accuracy estimated from the validation data
 # actually starts to go down after 5 epochs; so reset the weights to the
