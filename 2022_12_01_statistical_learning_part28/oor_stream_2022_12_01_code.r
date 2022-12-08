@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 10.5
 #
-# last updated: 2022-12-04
+# last updated: 2022-12-08
 
 ############################################################################
 
@@ -308,9 +308,12 @@ pred <- predict(model, x.test)
 
 ############################################################################
 
+# set the seed to make results reproducible
+tensorflow::set_random_seed(42)
+
 # non-linear AR(5) model by adding a hidden layer with 32 units
 model <- keras_model_sequential() |>
-   layer_dense(input_shape=ncol(x), units=32, activation="relu") |>
+   layer_dense(input_shape=ncol(x.test), units=32, activation="relu") |>
    layer_dropout(rate = 0.5) |>
    layer_dense(units = 1) |>
    compile(optimizer="rmsprop", loss="mse")
