@@ -293,7 +293,7 @@ tensorflow::set_random_seed(42)
 
 # set up the model
 model <- keras_model_sequential() |>
-   layer_dense(input_shape=ncol(x), units=1) |>
+   layer_dense(input_shape=ncol(x.train), units=1) |>
    compile(optimizer="rmsprop", loss="mse")
 
 # summary information about the model
