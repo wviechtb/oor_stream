@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 12.2.1 - 12.2.2
 #
-# last updated: 2022-12-15
+# last updated: 2022-12-16
 
 ############################################################################
 
@@ -171,6 +171,9 @@ head(dat)
 # standardize all 4 variables and put them into X
 X <- apply(dat, 2, scale)
 
+# add the states as row names to X
+rownames(X) <- rownames(dat)
+
 # correlation matrix
 cor(X)
 
@@ -185,7 +188,7 @@ evd
 
 # to ensure that the signs are the same as in the book, check the sign of the
 # element in position (1,1); if it is negative, flip the sign of the entire
-# eigenvetor matrix
+# eigenvector matrix
 if (evd$vectors[1,1] < 0)
    evd$vectors <- -1 * evd$vectors
 
@@ -223,9 +226,6 @@ abline(v=0, lty="dotted")
 
 # in practice, we don't want to do PCA by hand as we did above; R comes with
 # the princomp() and prcomp() functions to do a PCA
-
-# add the states as row names to X
-rownames(X) <- rownames(dat)
 
 # use princomp() to do a PCA
 res <- princomp(X, cor=TRUE)
@@ -284,7 +284,7 @@ t(t(res$loadings[,]) / sqrt(res$values))
 head(res$scores)
 
 # again, these are different than the ones we found earlier, because these are
-# standaridzed PC scores; we can undo this as follows
+# standardized PC scores; we can undo this as follows
 res$scores <- t(t(res$scores) * sqrt(res$values))
 head(res$scores)
 
@@ -296,8 +296,8 @@ head(res$scores)
 # variable based on the first two PCs; pull out the loading matrix and the
 # principal component scores from 'res' and use the same notation
 res <- prcomp(X, center=TRUE, scale.=TRUE)
-phi <- res$rotation
-z <- res$x
+phi <- res$rotation[,1:2]
+z <- res$x[,1:2]
 pred.murder <- z[,1] * phi[1,1] + z[,2] * phi[1,2]
 pred.murder
 
@@ -306,7 +306,7 @@ plot(pred.murder, X[,"Murder"], pch=19, xlim=c(-2,2.5), ylim=c(-2,2.5),
      xlab="Predicted Values Based on PC1 and PC2", ylab="Actual Value")
 
 # predict the values of all 4 variables based on the first two PCs
-pred <- z[,1:2] %*% t(phi[,1:2])
+pred <- z %*% t(phi)
 
 # compute the squared distance between the actual and predicted value for each
 # variable, sum up these squared distances over the states for each variable,
@@ -324,7 +324,7 @@ optfun <- function(par, X) {
    sum(apply((X - pred)^2, 2, sum))
 }
 
-opt <- optim(rep(0.5,108), optfun, X=X, method="BFGS")
+opt <- nlminb(rep(1,108), optfun, X=X)
 opt
 
 # note that the value for the objective function is the same as above
@@ -334,7 +334,7 @@ z.opt <- matrix(opt$par[1:100], nrow=50, ncol=2)
 phi.opt <- matrix(opt$par[101:108], nrow=4, ncol=2)
 
 # predict the values of all 4 variables based on the first two PCs from 'opt'
-pred.opt <- z.opt[,1:2] %*% t(phi.opt[,1:2])
+pred.opt <- z.opt %*% t(phi.opt)
 rownames(pred.opt) <- rownames(dat)
 colnames(pred.opt) <- colnames(dat)
 
@@ -348,5 +348,100 @@ head(pred.opt)
 # there is not a unique solution (see also footnote 4), but as we see above,
 # the predicted values (or the 'projections' of the original data onto the
 # plane defined by the first two PCs that best fits the data) are the same
+
+############################################################################
+
+# the optimization approach above can be simplified, since the principal
+# component scores in z are a function of phi (the loadings) and X; so we do
+# not really need to optimize over the scores
+
+optfun <- function(par, X) {
+   phi <- matrix(par[1:8], nrow=4, ncol=2)
+   z <- X %*% phi
+   pred <- z %*% t(phi)
+   sum(apply((X - pred)^2, 2, sum))
+}
+
+opt <- nlminb(rep(1,8), optfun, X=X)
+opt
+
+phi.opt <- matrix(opt$par, nrow=4, ncol=2)
+z.opt <- X %*% phi.opt
+pred.opt <- z.opt %*% t(phi.opt)
+rownames(pred.opt) <- rownames(dat)
+colnames(pred.opt) <- colnames(dat)
+
+head(pred)
+head(pred.opt)
+
+# this again gives us the same predicted values
+
+############################################################################
+
+# the above suggests that we may be able to use the same optimization approach
+# to conduct a PCA in general; so instead of restricting the optimization over
+# M (with M < p) PCs, we could also do the optimization over all p PCs and try
+# to find their loadings; but we also need some restrictions, namely that the
+# sum of the squared loadings for each PC is equal to 1 and that the variance
+# of the scores on the first PC is as large as possible, followed by making
+# the scores on the other PCs as large as possible under the restriction that
+# the PC scores are uncorrelated; after some trial-and-error, it appears that
+# it is sufficient to check for uncorrelatedness of the scores
+
+optfun <- function(par, X) {
+   p <- ncol(X)
+   phi <- matrix(par[1:p^2], nrow=p, ncol=p)
+   z <- X %*% phi
+   pred <- z %*% t(phi)
+   # the first part of this sum should be zero since the difference between
+   # the observed and predicted values must be zero and the second part should
+   # be zero since the correlation matrix of the principal component scores
+   # should be an identity matrix
+   sum(apply((X - pred)^2, 2, sum)) + sum((cor(z) - diag(p))^2)
+}
+
+# do PCA (and flip signs again) and extract the loadings for all 4 PCs
+res <- prcomp(X, center=TRUE, scale.=TRUE)
+res$rotation <- -1 * res$rotation
+res$x <- -1 * res$x
+phi <- res$rotation
+z <- res$x
+
+# now try to do the same via the optimization approach above
+p <- ncol(X)
+opt <- nlminb(rep(1,p^2), optfun, X=X)
+opt
+
+# extract the estimates (loadings) and the PC scores
+phi.opt <- matrix(opt$par[1:p^2], nrow=p, ncol=p)
+z.opt <- X %*% phi.opt
+
+# reorder the columns based on the variance in the PC scores
+phi.opt <- phi.opt[,order(apply(z.opt, 2, var), decreasing=TRUE)]
+z.opt <- X %*% phi.opt
+
+# add dimension names to phi.opt and z.opt
+dimnames(phi.opt) <- dimnames(phi)
+colnames(z.opt) <- colnames(z)
+
+# compare the results
+phi
+phi.opt
+
+# compare the variances of the PC scores
+apply(z, 2, var)
+apply(z.opt, 2, var)
+
+# check that the correlations are 0
+round(cor(z), 6)
+round(cor(z.opt), 6)
+
+# check that the sums of the squared loadings are equal to 1
+apply(phi, 2, function(x) sum(x^2))
+apply(phi.opt, 2, function(x) sum(x^2))
+
+# this works! not sure how well this generalizes, but I tried this out for
+# several different datasets and it worked for all of them (sometimes had to
+# increase the number of iterations to obtain convergence)
 
 ############################################################################
