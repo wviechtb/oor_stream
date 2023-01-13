@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 12.2.1 - 12.2.2
 #
-# last updated: 2022-12-16
+# last updated: 2023-01-13
 
 ############################################################################
 
@@ -67,7 +67,7 @@ for (i in 1:length(phi11)) {
 }
 
 # plot phi11 against the variance of the linear combination
-plot(phi11, varcomb1, type="l", lwd=3)
+plot(phi11, varcomb1, type="l", lwd=3, ylab="Variance of Linear Combination")
 lines(phi11, varcomb2, lwd=3, lty="dotted")
 
 # find the value of phi1 for which the variance is as large as possible
@@ -231,6 +231,8 @@ abline(v=0, lty="dotted")
 res <- princomp(X, cor=TRUE)
 res
 
+# note: since X is already standardized, can leave out cor=TRUE
+
 # print the loadings (note: by default, loadings below 0.1 (in absolute value)
 # are not shown; setting 'cutoff' to 0 shows all loadings)
 print(loadings(res), digits=7, cutoff=0)
@@ -240,6 +242,11 @@ head(res$scores)
 
 # use prcomp() function to do PCA
 res <- prcomp(X, center=TRUE, scale.=TRUE)
+res
+
+# note: since X is already standardized, we don't need to set scale.=TRUE (and
+# in fact, center=TRUE by default anyway, so we can also leave this out)
+res <- prcomp(X)
 res
 
 # note that the loadings have flipped signs again; let's flip their sign
@@ -259,9 +266,10 @@ biplot(res, col=c("dodgerblue","orange"), scale=0)
 
 # note: the values of the PCs are slightly different when using princomp() and
 # when using prcomp(); this has to do with how variances are computed in the
-# two functions; prcomp() uses the commonly divisor of N-1; also, as noted in
-# help(prcomp), this function uses a singular value decomposition for getting
-# the loadings, which is "the preferred method for numerical accuracy"
+# two functions; prcomp() uses the divisor N-1, while princomp() uses N; also,
+# as noted in help(prcomp), this function uses a singular value decomposition
+# for getting the loadings, which is "the preferred method for numerical
+# accuracy"
 
 # the 'psych' package also provides a function for PCA
 
@@ -295,7 +303,7 @@ head(res$scores)
 # say M = 2 and we want to compute the approximate values of the 'Murder'
 # variable based on the first two PCs; pull out the loading matrix and the
 # principal component scores from 'res' and use the same notation
-res <- prcomp(X, center=TRUE, scale.=TRUE)
+res <- prcomp(X)
 phi <- res$rotation[,1:2]
 z <- res$x[,1:2]
 pred.murder <- z[,1] * phi[1,1] + z[,2] * phi[1,2]
@@ -312,6 +320,10 @@ pred <- z %*% t(phi)
 # variable, sum up these squared distances over the states for each variable,
 # and then sum these sums over the 4 variables
 sum(apply((X - pred)^2, 2, sum))
+
+# this is identical to just taking the difference between each element in X
+# and pred, squaring this, and summing this all up
+sum((X - pred)^2)
 
 # the scores and loadings and for the first two PCs minimize this value
 
@@ -401,7 +413,7 @@ optfun <- function(par, X) {
 }
 
 # do PCA (and flip signs again) and extract the loadings for all 4 PCs
-res <- prcomp(X, center=TRUE, scale.=TRUE)
+res <- prcomp(X)
 res$rotation <- -1 * res$rotation
 res$x <- -1 * res$x
 phi <- res$rotation
