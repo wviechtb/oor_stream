@@ -9,7 +9,7 @@
 # - An Introduction to Statistical Learning (https://www.statlearning.com)
 # - Section(s): 12.4.2 - 12.4.3
 #
-# last updated: 2023-03-03
+# last updated: 2023-03-10
 
 ############################################################################
 
@@ -112,5 +112,38 @@ for (i in 1:10) {
 }
 
 # here, we see that the clusters that are being formed are less consistent
+
+############################################################################
+
+### try out the 'elbow criterion/method' for choosing k in k-means clustering
+
+# https://en.wikipedia.org/wiki/Elbow_method_(clustering)
+
+# back to the data where there are essentially two groups
+set.seed(1234)
+x1 <- c(rnorm(100, 6, 1), rnorm(50, 3, 1))
+x2 <- c(rnorm(100, 3, 1), rnorm(50, 8, 1))
+X <- cbind(x1,x2)
+
+# do k-means clustering with k from 1 to 10 and save the 'total within-cluster
+# sum of squares' for each value of k
+
+withinss <- rep(NA, 10)
+
+for (k in 1:10) {
+   res <- kmeans(X, centers=k)
+   withinss[k] <- res$tot.withinss
+}
+
+# plot the total within-cluster sum of squares as a function of k
+plot(1:10, withinss, type="o", pch=19, xlab="Number of Clusters",
+     ylab="Total Within-Cluster Sum of Squares")
+
+# the rule is to pick as many clusters as there are points above the 'elbow'
+# plus one (so here, we might decide to choose k=2, which indeed matches up
+# with how we simulated the data)
+
+# but note that the elbow criterion/method should probably not be used; see:
+# https://arxiv.org/abs/2212.12189
 
 ############################################################################
