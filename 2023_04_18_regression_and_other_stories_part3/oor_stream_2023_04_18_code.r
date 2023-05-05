@@ -9,7 +9,7 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 2.1 - 2.2
 #
-# last updated: 2023-04-27
+# last updated: 2023-05-04
 
 ############################################################################
 
@@ -232,6 +232,16 @@ summary(lm(partyident ~ income, data=dat))
 # have a higher partyident level (i.e., leaning towards republican); here, the
 # relationship is stronger and the coefficients keep increasing with higher
 # income levels
+
+# create a table of proportions of ideology within each party identification
+# group; we see that there is actually quite some relationship between these
+# two variables (Democrats or leaning Democrats tend to be more liberal and
+# vice-versa
+prop.table(table(dat$partyident, dat$ideo), margin=1)
+
+# given this, it is quite surprising/interesting that one can reach actually
+# rather different conclusions as to how strongly income predicts these two
+# variables
 
 ############################################################################
 
