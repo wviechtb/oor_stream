@@ -9,7 +9,7 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 2.3
 #
-# last updated: 2023-05-05
+# last updated: 2023-05-18
 
 ############################################################################
 
@@ -112,7 +112,7 @@ dat$bipartdev[dat$grp == 4] <-  1
 dat$bipartdev[dat$grp == 3] <- -1
 
 # fit a regression model similar to what the authors must have fitted
-res <- lm(y ~ x + bipartdev + x:grpfac, data=dat)
+res <- lm(y ~ x + bipartdev + grpfac + x:grpfac, data=dat)
 summary(res)
 
 # add the regression lines for the 4 groups to the plot
