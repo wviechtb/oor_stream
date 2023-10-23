@@ -30,7 +30,7 @@ set.seed(1234)
 iters <- 10000
 
 # simulate data based on the true model for a large number of subjects (these
-# will the test data, which we will make use of further below)
+# will be the test data, which we will make use of further below)
 n_new <- 1000
 x0 <- rnorm(n_new)
 y0 <- 2 + 1 * x0 + 0.3 * x0^2 + rnorm(n_new)

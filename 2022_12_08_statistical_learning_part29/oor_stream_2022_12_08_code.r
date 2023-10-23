@@ -190,7 +190,7 @@ lines(xs, sin(xs), lwd=3)
 # let's go back to the case where we have df=42
 X <- ns(dat$x, df=42, intercept=TRUE)
 
-# get the minimum normal solution via svd()
+# get the minimum norm solution via svd()
 svdX <- svd(X)
 u <- svdX$u
 d <- diag(svdX$d)
@@ -223,11 +223,11 @@ lines(xs, pred, col="dodgerblue", lwd=2)
 sum(b^2)
 sum(res$par^2) # way bigger
 
-# this is not the minimum normal solution, because we have not added the
+# this is not the minimum norm solution, because we have not added the
 # additional goal of minimizing sum(b^2) in the optimization
 
 # interestingly, if we use the BFGS algorithm or the quasi-Newton method that
-# is implemented in nlminb(), we do get the minimum normal solution
+# is implemented in nlminb(), we do get the minimum norm solution
 res.bfgs <- optim(par=rep(0,ncol(X)), fitfun, X=X, y=dat$y, method="BFGS")
 res.bfgs
 c(sum(b^2), sum(res.bfgs$par^2)) # same!

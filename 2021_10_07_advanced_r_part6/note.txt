@@ -13,7 +13,7 @@
 #
 # last updated: 2021-10-07
 
-# Note: For this stream, I did not create a script files, since the code I
+# Note: For this stream, I did not create a script file, since the code I
 # covered was simply the code that is presented in the book.
 
 ############################################################################
