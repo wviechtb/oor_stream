@@ -3,13 +3,15 @@
 # Open Online R Stream (https://www.wvbauer.com/doku.php/live_streams)
 #
 # By:   Wolfgang Viechtbauer (https://www.wvbauer.com)
-# Date: 2023-11-30
+# Date: 2023-11-30 / 2024-01-18
 #
 # Topic(s):
 # - Drawing forest plots with the metafor package
 # - https://www.metafor-project.org
 #
-# last updated: 2024-01-08
+# last updated: 2024-01-24
+
+# note: the same code was used in the stream on 2024-01-18
 
 ############################################################################
 
@@ -25,11 +27,23 @@ library(metafor)
 dat <- dat.bcg
 dat
 
+# tpos, tneg, cpos, cneg are the variables corresponding to the 2x2 tables
+#
+#           TB+    TB-
+#         +------+------+
+# treated | tpos | tneg |
+#         +------+------+
+# control | cpos | cneg |
+#         +------+------+
+
 # calculate log risk ratios and corresponding sampling variances
 dat <- escalc(measure="RR", ai=tpos, bi=tneg,
                             ci=cpos, di=cneg, data=dat,
                             slab=paste0(author, ", ", year))
 dat
+
+# yi = the log risk ratios
+# vi = the corresponding sampling variances
 
 # random-effects model
 res <- rma(yi, vi, data=dat)
@@ -50,8 +64,13 @@ help(forest.rma)
 # create a very simple forest plot based on the results from the model
 forest(res)
 
-# note: the study labels are shown in the plot; these were added to the object
-# created with escalc() further above (via the 'slab' argument)
+# notes:
+#
+# - do not call the method function directly with forest.rma(res); while this
+#   would work, let R handle the 'dispatching' to the appropriate method
+#   function for you
+# - the study labels are shown in the plot; these were added to the object
+#   created with escalc() further above (via the 'slab' argument)
 
 # one can also specify study labels directly when using the forest() function
 forest(res, slab=paste0(author, " (", year, ")"))
@@ -66,7 +85,7 @@ forest(res, header=TRUE)
 # suppress the annotations on the right-hand side
 forest(res, header=TRUE, annotate=FALSE)
 
-# suppress the summary estimate on the bottom
+# suppress the summary estimate (the polygon/diamond) on the bottom
 forest(res, header=TRUE, addfit=FALSE)
 
 # show the prediction interval around the summary polygon as a dotted line
@@ -100,6 +119,9 @@ forest(res, header=TRUE, mlab="Summary")
 
 # change the symbol for the observed outcomes to circles
 forest(res, header=TRUE, pch=19)
+
+# note: see help(points) for more information about the possible values for
+# the 'pch' argument
 
 # specify the background color of 'open' plot symbols with the bg argument
 forest(res, header=TRUE, pch=21, bg="gray")
@@ -135,7 +157,7 @@ forest(res, header=TRUE, col="gray", border="darkgray")
 # change the line type for the confidence intervals to dashed lines
 forest(res, header=TRUE, lty="dashed")
 
-# see help(par) for the line type options
+# note: see help(par) for the line type options
 
 # adjust the number of digits to which the annotations and x-axis tick labels
 # are rounded (the default is 2L, where L declares 2 to be an integer)
@@ -148,6 +170,7 @@ forest(res, header=TRUE, digits=3)
 
 # specify a different number of digits for the annotations and x-axis labels
 forest(res, header=TRUE, digits=c(3,1))
+forest(res, header=TRUE, digits=c(3L,1L))
 
 # change the vertical expansion factor for the CI limits and the summary polygon
 forest(res, header=TRUE, efac=1.5)
@@ -216,7 +239,7 @@ forest(res, header=TRUE, atransf=exp)
 # same magnitude as exp(-1), but of course in different directions; the x-axis
 # is now said to be on a 'log scale'
 
-# but the position of the back-transformed tick marks is not ideal; instead,
+# but the positions of the back-transformed tick marks are not ideal; instead,
 # we want to use more meaningful values, such as twice the risk (2) or half
 # the risk (0.5), so we specify the log risk ratio tick mark positions, which
 # are then exponentiated via the axis transformation
@@ -270,6 +293,14 @@ forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
 text(c(-9.5,-8,-6,-4.5), 15, c("TB+", "TB-", "TB+", "TB-"), cex=0.9, font=2)
 text(c(-8.75,-5.25), 16, c("Vaccinated", "Control"), cex=0.9, font=2)
 
+# with ilab.pos, can change the alignment of the variables that are added; for
+# example, we can use ilab.pos=2 to right-align them (have to adjust the
+# position of the text headers that are added to make things line up again)
+forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
+       ilab.xpos=c(-9.5,-8,-6,-4.5), ilab.pos=2, cex=0.9)
+text(c(-9.5,-8,-6,-4.5), 15, c("TB+", "TB-", "TB+", "TB-"), cex=0.9, font=2, pos=2)
+text(c(-8,-4.5), 16, c("Vaccinated", "Control"), cex=0.9, font=2, pos=2)
+
 # save the plot as a png file
 
 png("forest_plot.png", width=2500, height=1800, pointsize=10, res=300)
@@ -283,10 +314,62 @@ dev.off()
 
 ############################################################################
 
-# some additional topics to be discussed:
-# - talk about the alignment of the annotations
+# as noted earlier, we can use the 'mlab' argument to adjust the text for the
+# row that includes the summary polygon
+forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
+       ilab.xpos=c(-9.5,-8,-6,-4.5), cex=0.9, mlab="Summary")
+
+# often, we want to add additional information in this row, such as statistics
+# about the amount of heterogeneity, like the Q-test, I^2, and tau^2; this
+# information we can find in the model output
+res
+
+# so we could in principle manually add this information via 'mlab'
+forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
+       ilab.xpos=c(-9.5,-8,-6,-4.5), cex=0.9,
+       mlab="RE Model (Q = 152.23, df = 12, p < .001; I^2 = 92.2%, tau^2 = 0.31)")
+
+# to plot math equations, see help(plotmath); can do this in various ways
+forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
+       ilab.xpos=c(-9.5,-8,-6,-4.5), cex=0.9,
+       mlab=expression("RE Model (Q = 152.23, df = 12, p < .001;" ~ I^2 == 92.2*"%," ~ tau^2 == 0.31 * ")"))
+forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
+       ilab.xpos=c(-9.5,-8,-6,-4.5), cex=0.9,
+       mlab=expression(paste("RE Model (Q = 152.23, df = 12, p < .001; ", I^2 == 92.2, "%, ", tau^2 == 0.31, ")")))
+
+# instead of copy-pasting values manually from the output, we can automate the
+# extraction of the relevant pieces of information from the model object (the
+# fmtx() and fmtp() functions from the metafor package are useful for nicely
+# formatting statistics and p-values)
+forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
+       ilab.xpos=c(-9.5,-8,-6,-4.5), cex=0.9,
+       mlab=paste0("RE Model (Q = ", fmtx(res$QE, digits=2), ", df = ", res$k-1, ", ",
+                   fmtp(res$QEp, digits=3, pname="p", sep=TRUE),
+                   "; I^2 = ", fmtx(res$I2, digits=1), "%",
+                   ", tau^2 = ", fmtx(res$tau2, digits=2), ")"))
+
+# and now we want to combine this with a math expression; for this,
+# bquote(paste(...)) is very convenient; within paste(), we just add the
+# elements that we want to show, consisting of text (in quotes), code to
+# evaluate (like this: .(<code>)), and plotmath syntax
+forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
+       ilab.xpos=c(-9.5,-8,-6,-4.5), cex=0.9,
+       mlab=bquote(paste("RE Model (Q = ", .(fmtx(res$QE, digits=2)), ", df = ", .(res$k-1), ", ",
+                         .(fmtp(res$QEp, digits=3, pname="p", sep=TRUE)),
+                         "; ", I^2, " = ", .(fmtx(res$I2, digits=1)), "%",
+                         ", ", tau^2, " = ", .(fmtx(res$tau2, digits=2)), ")")))
+text(c(-9.5,-8,-6,-4.5), 15, c("TB+", "TB-", "TB+", "TB-"), cex=0.9, font=2)
+text(c(-8.75,-5.25), 16, c("Vaccinated", "Control"), cex=0.9, font=2)
+
+############################################################################
+
+# further topics to be discussed at the next session:
+
+# - arguments ylim and rows
+# - argument width
+# - the alignment of the annotations (and the fonts argument)
 # - how to show studies with missings
-# - explain difference between the different forest functions in metafor
+# - the difference between the different forest functions
 # - forest plots for models with moderators
 # - use of forest plots outside of meta-analysis
 
