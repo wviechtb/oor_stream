@@ -3,15 +3,16 @@
 # Open Online R Stream (https://www.wvbauer.com/doku.php/live_streams)
 #
 # By:   Wolfgang Viechtbauer (https://www.wvbauer.com)
-# Date: 2023-11-30 / 2024-01-18
+# Date: 2023-11-30 / 2024-01-18 / 2024-01-25
 #
 # Topic(s):
 # - Drawing forest plots with the metafor package
 # - https://www.metafor-project.org
 #
-# last updated: 2024-01-24
+# last updated: 2024-01-27
 
-# note: the same code was used in the stream on 2024-01-18
+# note: the same code was used in the stream on 2023-11-30, 2024-01-18, and
+# 2024-01-25 (kept expanding the same script)
 
 ############################################################################
 
@@ -354,7 +355,8 @@ forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
 # evaluate (like this: .(<code>)), and plotmath syntax
 forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
        ilab.xpos=c(-9.5,-8,-6,-4.5), cex=0.9,
-       mlab=bquote(paste("RE Model (Q = ", .(fmtx(res$QE, digits=2)), ", df = ", .(res$k-1), ", ",
+       mlab=bquote(paste("RE Model (Q = ", .(fmtx(res$QE, digits=2)),
+                         ", df = ", .(res$k-1), ", ",
                          .(fmtp(res$QEp, digits=3, pname="p", sep=TRUE)),
                          "; ", I^2, " = ", .(fmtx(res$I2, digits=1)), "%",
                          ", ", tau^2, " = ", .(fmtx(res$tau2, digits=2)), ")")))
@@ -363,14 +365,261 @@ text(c(-8.75,-5.25), 16, c("Vaccinated", "Control"), cex=0.9, font=2)
 
 ############################################################################
 
-# further topics to be discussed at the next session:
+# creating more complex layouts
 
-# - arguments ylim and rows
-# - argument width
-# - the alignment of the annotations (and the fonts argument)
-# - how to show studies with missings
-# - the difference between the different forest functions
-# - forest plots for models with moderators
-# - use of forest plots outside of meta-analysis
+# fit a random-effects model
+res.re <- rma(yi, vi, data=dat)
+
+# create the corresponding forest plot
+forest(res.re, header=TRUE)
+
+# fit an equal-effects model
+res.ee <- rma(yi, vi, data=dat, method="EE")
+
+# add the polygon from the equal-effects model to the forest plot
+addpoly(res.ee)
+
+# the summary polygon for the equal-effects model is stuck to the x-axis,
+# which doesn't look nice; we need to leave some additional space at the
+# bottom for adding additional polygons; this can be done by adjusting 'ylim'
+
+# create the forest plot again and add the polygon
+forest(res.re, header=TRUE, ylim=c(-2.5,16))
+addpoly(res.ee)
+
+# by default, the additional polygon is added in row -2 (see help(addpoly.rma)
+# for details); we can add even more polygons, but now we need to start
+# thinking about their placement, which is controlled by the 'row' argument
+
+# fit a random-effects model using the DL estimator
+res.dl <- rma(yi, vi, data=dat, method="DL")
+
+# create the forest plot again and add two polygons
+forest(res.re, header=TRUE, ylim=c(-3.5,16), mlab="RE Model (REML Estimator)")
+addpoly(res.dl, mlab="RE Model (DL Estimator)")
+addpoly(res.ee, row=-3)
+
+############################################################################
+
+# let's consider another case where we want to subgroup the studies and show
+# the results from models fitted to the subgroups in addition to the overall
+# result; for example, say we want to subgroup by whether participants were
+# randomly assigned to the treatment (BCG vaccine) or not
+dat$random <- ifelse(dat$alloc == "random", 1, 0)
+
+# fit a random-effects model to all studies
+res.re <- rma(yi, vi, data=dat)
+
+# fit random-effects models in the two subgroups
+res.0 <- rma(yi, vi, subset=(random==0), data=dat)
+res.1 <- rma(yi, vi, subset=(random==1), data=dat)
+
+# create the forest plot showing the result from all studies combined and
+# order the studies by whether they did not or did use random assignment; also
+# fix xlim to some round numbers (which becomes relevant further below)
+forest(res.re, header=TRUE, order=random, xlim=c(-8,5))
+
+# now increase ylim, so we have more vertical space in the plot
+forest(res.re, header=TRUE, order=random, xlim=c(-8,5), ylim=c(-1.5,23))
+
+# just for illustration, add the row numbers to the plot as text (this helps
+# to clarify how the 'rows' argument is used to select appropriate values)
+text(-3, -1:23, -1:23, cex=0.8)
+
+# now specify with the 'rows' argument in which rows to place the studies
+forest(res.re, header=TRUE, order=random, xlim=c(-8,5), ylim=c(-1.5,23),
+       rows=c(3:9,14:19), mlab="RE Model (all studies combined)", refline=NA)
+
+# add the polygons from the two subset models
+addpoly(res.0, row=12.5)
+addpoly(res.1, row= 1.5)
+
+# add text for the subgroups (note how -8 corresponds to the -8 from 'xlim')
+text(-8, 20, "Without Random Assignment", pos=4, font=4)
+text(-8, 10, "With Random Assignment",    pos=4, font=4)
+
+# now we can add additional graphical elements to the figure as we like
+rect(-8,  0.5, 5, 10.5, lty="dotted")
+rect(-8, 11.5, 5, 20.5, lty="dotted")
+
+# for an even more elaborate example of this kind of forest plot, see:
+# https://www.metafor-project.org/doku.php/plots:forest_plot_with_subgroups
+
+############################################################################
+
+# we can adjust the left bracket, separation, and right bracket symbols for
+# the annotations using the 'annosym' argument
+forest(res, header=TRUE)
+forest(res, header=TRUE, annosym=c(" (", " to ", ")"))
+
+# annosym can include a 4th element for the minus symbol (the hyphen symbol
+# that is used by default is not actually a 'proper' minus sign); see
+# https://en.wikipedia.org/wiki/Dash#Unicode for all kinds of different
+# unicode symbols for dashes; a proper minus sign is U+2212, which in R we can
+# specify using the \u syntax
+forest(res, header=TRUE, annosym=c(" (", " to ", ")", "\u2212"))
+
+# annosym can include a 5th element for the space (whitespace) symbol; there
+# are actually different whitespace characters of different widths; see
+# https://en.wikipedia.org/wiki/Whitespace_character#Unicode for all kinds of
+# different whitespace characters; a 'en quad' symbol is U+2000, which is more
+# similar in width to the proper minus symbol we are using; this helps to
+# align the annotations
+forest(res, header=TRUE, annosym=c(" (", " to ", ")", "\u2212", "\u2000"))
+
+# one way of solving problems with the alignment of the annotations is to
+# switch to a mono-type font, which we can do with the 'font' argument
+forest(res, header=TRUE, font="mono")
+
+# closing the plotting device explicitly (as otherwise additional plots will
+# also use a mono-type font)
+dev.off()
+
+# but this doesn't look so nice; instead, we can use a font that has 'tabular
+# figures' (https://en.wikipedia.org/wiki/Typeface#Typesetting_numbers) and
+# where there is a dash symbol that has the exact same width as a whitespace
+# character; then we need to switch annosym to use these symbols and then
+# everything will align perfectly; the 'tabfig' argument helps to select
+# appropriate symbols for certain fonts (see help(forest.rma) and the section
+# 'Additional Optional Arguments'); we can then save the plot using png(),
+# specifying the desired font, with the corresponding appropriate 'tabfig'
+# value (note: the following assumes that you have the 'Calibri' font
+# installed on your computer)
+
+png("forest_plot.png", width=2500, height=1800, res=300, type="cairo", family="Calibri")
+forest(res, header=TRUE, tabfig=1)
+dev.off()
+
+# in the resulting figure, the annotations should be perfectly aligned
+
+# try this with a more complex figure
+
+png("forest_plot.png", width=2500, height=1800, res=300, type="cairo", family="Calibri")
+
+forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
+       ilab.xpos=c(-9.5,-8,-6,-4.5), cex=0.9, tabfig=1,
+       mlab=bquote(paste("RE Model (Q = ", .(fmtx(res$QE, digits=2)),
+                         ", df = ", .(res$k-1), ", ",
+                         .(fmtp(res$QEp, digits=3, pname="p", sep=TRUE)),
+                         "; ", I^2, " = ", .(fmtx(res$I2, digits=1)), "%",
+                         ", ", tau^2, " = ", .(fmtx(res$tau2, digits=2)), ")")))
+text(c(-9.5,-8,-6,-4.5), 15, c("TB+", "TB-", "TB+", "TB-"), cex=0.9, font=2)
+text(c(-8.75,-5.25), 16, c("Vaccinated", "Control"), cex=0.9, font=2)
+
+abline(h=1) # add a horizontal line in row 1
+
+dev.off()
+
+# the line that we added above reveals one additional slight misalignment;
+# note that the line passes almost through the middle of the circle in the 6
+# in the study label ('... 1976'), but almost touches the top of the circle in
+# the additional variables that were added via ilab ('16886'); to correct for
+# this, we can use the 'rowadj' argument
+
+png("forest_plot.png", width=2500, height=1800, res=300, type="cairo", family="Calibri")
+
+forest(res, header=TRUE, xlim=c(-16,6), ilab=cbind(tpos, tneg, cpos, cneg),
+       ilab.xpos=c(-9.5,-8,-6,-4.5), cex=0.9, tabfig=1, rowadj=c(0,0,.06),
+       mlab=bquote(paste("RE Model (Q = ", .(fmtx(res$QE, digits=2)),
+                         ", df = ", .(res$k-1), ", ",
+                         .(fmtp(res$QEp, digits=3, pname="p", sep=TRUE)),
+                         "; ", I^2, " = ", .(fmtx(res$I2, digits=1)), "%",
+                         ", ", tau^2, " = ", .(fmtx(res$tau2, digits=2)), ")")))
+text(c(-9.5,-8,-6,-4.5), 15, c("TB+", "TB-", "TB+", "TB-"), cex=0.9, font=2)
+text(c(-8.75,-5.25), 16, c("Vaccinated", "Control"), cex=0.9, font=2)
+
+abline(h=1) # add a horizontal line in row 1
+
+dev.off()
+
+# now all of the numbers are perfectly aligned
+
+############################################################################
+
+# suppose for one of the studies the effect size is missing; the study then
+# also does not show up in the forest plot by default
+dat <- dat.bcg
+dat$tpos[4] <- dat$tneg[4] <- dat$cpos[4] <- dat$cneg[4] <- NA
+dat <- escalc(measure="RR", ai=tpos, bi=tneg,
+                            ci=cpos, di=cneg, data=dat,
+                            slab=paste0(author, ", ", year))
+res <- rma(yi, vi, data=dat)
+forest(res, header=TRUE)
+
+# but we may want to still show that the study exists; we can do this by
+# adjusting how missings (NAs) are treated via options(); the default way of
+# treating missings is to omit them
+options("na.action")
+
+# we can switch this to na.pass
+options(na.action="na.pass")
+forest(res, header=TRUE)
+
+# switch back to na.omit
+options(na.action="na.omit")
+
+############################################################################
+
+# forest plots based on meta-regression models
+
+# copy the BCG dataset to 'dat' and examine the data
+dat <- dat.bcg
+dat <- escalc(measure="RR", ai=tpos, bi=tneg,
+                            ci=cpos, di=cneg, data=dat,
+                            slab=paste0(author, ", ", year))
+res <- rma(yi, vi, mods = ~ ablat, data=dat)
+res
+
+# draw the forest plot
+forest(res, header=TRUE)
+
+# for meta-regression models (i.e., models involving moderators), the fitted
+# value for each study is added as a polygon to the plot; this is a logical
+# generalization of a forest plot for models without moderators, but doesn't
+# look super nice; instead, it may be nicer to add some predicted values as
+# polygons below the studies, for example as shown below
+
+# forest plot of the observed risk ratios
+forest(res, addfit=FALSE, xlim=c(-8,5), ylim=c(-4.5,16),
+       order=ablat, ilab=ablat, ilab.xpos=-4, header="Author(s) and Year")
+
+# predicted average log risk ratios for 10, 30, and 50 degrees absolute latitude
+x <- predict(res, newmods=c(10, 30, 50))
+
+# add predicted average risk ratios to forest plot
+addpoly(x, mlab=c("- at 10 Degrees", "- at 30 Degrees", "- at 50 Degrees"))
+abline(h=0)
+text(-8, -1, "Model-Based Estimates:", pos=4)
+text(-4, res$k+2, "Latitude", font=2)
+
+############################################################################
+
+# forest plots are sometimes used outside the context of meta-analysis, to
+# show the results from a regression model; let's use the palmerpenguins
+# dataset for this
+
+#install.packages("palmerpenguins")
+library(palmerpenguins)
+
+# predict body mass from the bill length, bill depth, and flipper length,
+# allowing the coefficients to differ across the three penguin species
+res <- lm(body_mass_g ~ 0 + species + (bill_length_mm + bill_depth_mm + flipper_length_mm):species, data=penguins)
+summary(res)
+
+# forest plot showing the regression coefficients for each species
+forest(coef(res), diag(vcov(res)), subset=-(1:3),
+       slab=rep(c("Adelie", "Chinstrap", "Gentoo"), times=4),
+       header="Predictor", xlab="Regression Coefficient Estimate", psize=1,
+       col=rep(c("darkorange","purple","cyan4"), times=4),
+       xlim=c(-350, 500), ylim=c(0.5, 17), rows=c(1:3, 6:8, 11:13))
+text(-350, 14, "Flipper Length", font=4, pos=4)
+text(-350,  9, "Bill Depth",     font=4, pos=4)
+text(-350,  4, "Bill Length",    font=4, pos=4)
+
+############################################################################
+
+# note: there are a bunch of other packages that can draw forest plots; see
+# the meta-analysis task view (https://cran.r-project.org/view=MetaAnalysis)
+# for a list of such packages (see the 'Graphical methods' section)
 
 ############################################################################
