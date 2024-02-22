@@ -9,7 +9,7 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 4.3
 #
-# last updated: 2023-10-27
+# last updated: 2024-02-15
 
 ############################################################################
 
@@ -45,7 +45,7 @@ hist(means, main="Sampling Distribution of the Mean", breaks=50)
 # sidenote: since the sum of normally distributed variables is still normal
 # (https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables)
 # (which is also true if the variables have different means and/or standard
-# deviations), the sampling disitribution of the mean above is also exactly
+# deviations), the sampling distribution of the mean above is also exactly
 # normal (and this will be true irrespective of the sample size, so we do not
 # even need the CLT for the sampling distribution to become normal)
 
