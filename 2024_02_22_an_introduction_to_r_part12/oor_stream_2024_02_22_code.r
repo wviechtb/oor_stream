@@ -200,7 +200,7 @@ points(x, y, pch=21, bg="gray", cex=1.5)
 
 # add a legend
 legend("bottomright", inset=.02, lty=1, lwd=3, col=cols[1:5], bty="n",
-       legend=c("Linear Regerssion Model", "Quadratic Polynomial Model",
+       legend=c("Linear Regression Model", "Quadratic Polynomial Model",
                 "Cubic Polynomial Model", "Non-Linear Model (guestimates)",
                 "Non-Linear Model (actual estimates)"))
 
