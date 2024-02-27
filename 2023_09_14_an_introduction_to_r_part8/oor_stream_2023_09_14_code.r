@@ -10,11 +10,11 @@
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
 # - Section(s): 8.3 - 11.1
 #
-# last updated: 2023-09-25
+# last updated: 2024-02-23
 
 ############################################################################
 
-### 8.3: One- and two-sample tests
+## 8.3: One- and two-sample tests
 
 # create vectors A and B with the data shown (could also use scan())
 A <- c(79.98, 80.04, 80.02, 80.04, 80.03, 80.03, 80.04, 79.97, 80.05, 80.03, 80.02, 80.00, 80.02)
@@ -87,7 +87,11 @@ ks.test(heat ~ method, data=dat)
 
 ############################################################################
 
-### 9.2: Control statements
+### 9: Grouping, loops and conditional execution
+
+############################################################################
+
+## 9.2: Control statements
 
 # illustrate if (expr_1) expr_2 else expr_3
 
@@ -99,7 +103,7 @@ if (x == 5) print("x is five!") else print("x is not five :(")
 # FALSE, so the following does not work and generates an error
 if (dat$heat > 80) print("heat is above 80") else print("heat is 80 or below")
 
-## the difference between && and & (and similarly || and |)
+# the difference between && and & (and similarly || and |)
 
 # which values of 'heat' are larger than 80?
 dat$heat > 80
@@ -142,7 +146,7 @@ ifelse(dat$heat > 80, "red", "blue")
 plot(dat$heat, xlab="Observation Number", ylab="Heat", pch=19, cex=1.2,
      col=ifelse(dat$heat > 80, "red", "blue"))
 
-## for-loops
+# for-loops
 
 # a very simple example
 for (i in 1:20) {
@@ -242,7 +246,11 @@ colMeans(mtcars)
 
 ############################################################################
 
-### 11.1: Defining statistical models; formulae
+### 11: Statistical models in R
+
+############################################################################
+
+## 11.1: Defining statistical models; formulae
 
 # let's do some regression modeling using formula syntax with the mtcars dataset
 

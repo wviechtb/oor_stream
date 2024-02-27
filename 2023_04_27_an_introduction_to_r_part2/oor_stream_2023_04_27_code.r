@@ -10,25 +10,27 @@
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
 # - Section(s): 1.1 - 2.8
 #
-# last updated: 2023-04-28
+# last updated: 2024-02-23
 
 ############################################################################
 
-# As noted already in the previous session where we started going through this
-# manual (on 2023/04/06), I might adjust the code shown below at times to make
-# it more accessible, potentially leave things out when I think they are
-# unnecessary/confusing, and add additional explanations when this is useful.
+# As noted already in the previous session (on 2023-04-06) where we started
+# going through this manual, I might adjust the code at times to make it more
+# accessible, potentially leave things out when I think they are unnecessary
+# or confusing, and add additional explanations when this can be useful.
 
 ############################################################################
 
-### 1) Introduction and preliminaries
+### 1: Introduction and preliminaries
 
-## 1.2) Related software and documentation
+############################################################################
+
+## 1.2: Related software and documentation
 
 # just as a note: while the books mentioned here are definitely interesting, I
 # would not recommend them to those starting out with R
 
-## 1.5) Using R interactively
+## 1.5: Using R interactively
 
 # this section is focused on using R under a Unix/Linux operating system,
 # which probably isn't relevant to many people; however, it indirectly touches
@@ -49,11 +51,11 @@ getwd()
 # then the working folder is also automatically set to the location of the
 # script
 
-## 1.6) An introductory session
+## 1.6: An introductory session
 
 # we went through this introductory session during the stream on 2023/04/06
 
-## 1.7) Getting help with functions and features
+## 1.7: Getting help with functions and features
 
 # open up the help file for the mean() function
 help(mean)
@@ -68,7 +70,7 @@ help.start()
 # do a search for a term (searches among the installed packages)
 ??"principal components analysis"
 
-## 1.8) R commands, case sensitivity, etc.
+## 1.8: R commands, case sensitivity, etc.
 
 # R is case sensitive, so these are different
 x <- 1
@@ -85,7 +87,7 @@ X
 # avoid special characters specific to certain languages like German Umlauts
 # (i.e., stick to abc...z, 012...9, ., and _)
 
-## 1.11) Data permanency and removing objects
+## 1.11: Data permanency and removing objects
 
 # I would generally recommend not to make use of the option to save the
 # 'workspace' when quitting R (this has the potential to lead to a cluttered
@@ -99,9 +101,9 @@ X
 
 ############################################################################
 
-### 2) Simple manipulations; numbers and vectors
+### 2: Simple manipulations; numbers and vectors
 
-## 2.1) Vectors and assignment
+## 2.1: Vectors and assignment
 
 # combine with c() the numbers into a numeric vector and assign this to 'x'
 x <- c(10.4, 5.6, 3.1, 6.4, 21.7)
@@ -151,7 +153,7 @@ my
 y <- c(x, 0, x)
 y
 
-## 2.2) Vector arithmetic
+## 2.2: Vector arithmetic
 
 # this illustrates 'recycling' behavior
 v <- 2*x + y + 1
@@ -213,7 +215,7 @@ x
 pmax(x, 6)
 pmin(x, 6)
 
-## 2.3) Generating regular sequences
+## 2.3: Generating regular sequences
 
 # create a sequence of numbers from 1 to 30
 1:30
@@ -255,7 +257,7 @@ rep(x, times=5)
 # repeat each element of 'x' 5 times
 rep(x, each=5)
 
-## 2.4) Logical vectors
+## 2.4: Logical vectors
 
 x
 temp <- x > 13
@@ -280,7 +282,7 @@ large
 large
 lage * 5
 
-## 2.5) Missing values
+## 2.5: Missing values
 
 # cannot do this to indicate that the value for the third element is missing
 c(4,2,,6)
@@ -317,7 +319,7 @@ z == NA
 0/0
 Inf - Inf
 
-## 2.6) Character vectors
+## 2.6: Character vectors
 
 name <- c("Bob", "Sue", NA, "Joe")
 name
@@ -337,7 +339,7 @@ labs
 paste(name, collapse=", ")
 paste(name, year, collapse=", ")
 
-## 2.7) Index vectors; selecting and modifying subsets of a data set
+## 2.7: Index vectors; selecting and modifying subsets of a data set
 
 x <- c(2,5,NA,7,6,3,NA,5,7,4)
 x

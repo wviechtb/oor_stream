@@ -10,11 +10,15 @@
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
 # - Section(s): 6.1 - 6.3
 #
-# last updated: 2023-06-16
+# last updated: 2024-02-23
 
 ############################################################################
 
-### 6.1: Lists
+### 6: Lists and data frames
+
+############################################################################
+
+## 6.1: Lists
 
 # create an example of a list
 lst <- list(name="Fred", wife="Mary", no.children=3, child.ages=c(4,7,9))
@@ -91,7 +95,7 @@ attributes(lst)
 
 ############################################################################
 
-### 6.2: Constructing and modifying lists
+## 6.2: Constructing and modifying lists
 
 # an example showing how to create a list from existing objects
 id  <- c("Bob", "Sue", "John")
@@ -118,16 +122,16 @@ dat
 dat$blah <- c(4,1,5)
 dat
 
-## 6.2.1 Concatenating lists
+# 6.2.1 Concatenating lists
 
 # combine/concatenate a bunch of lists into a new list
 c(lst, z, dat)
 
 ############################################################################
 
-### 6.3: Data frames
+## 6.3: Data frames
 
-## 6.3.1: Making data frames
+# 6.3.1: Making data frames
 
 # combine 4 variables into a data frame
 id  <- c("Bob", "Sue", "John")
@@ -175,7 +179,7 @@ dat[,2]
 # with drop=FALSE, a single column from dat stays a data frame
 dat[,2,drop=FALSE]
 
-## 6.3.2: attach() and detach()
+# 6.3.2: attach() and detach()
 
 # this will give an error, because R does not find 'age' in 'dat'
 age
@@ -263,7 +267,7 @@ dat$ysum <- NULL
 dat$ysum <- with(dat, y1 + y2 + y3)
 dat
 
-## 6.3.3: Working with data frames
+# 6.3.3: Working with data frames
 
 # this is suggesting to use attach(), so I would say we can skip this advice
 
@@ -279,11 +283,11 @@ dat <- dat[dat$sex == "Male",]
 dat
 ysum
 
-## 6.3.4: Attaching arbitrary lists
+# 6.3.4: Attaching arbitrary lists
 
 # again, do NOT use attach() (unless you know exactly what you are doing)
 
-## 6.3.5: Managing the search path
+# 6.3.5: Managing the search path
 
 # show the current search paths
 searchpaths()

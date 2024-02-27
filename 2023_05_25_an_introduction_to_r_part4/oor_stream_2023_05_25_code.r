@@ -10,11 +10,15 @@
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
 # - Section(s): 5.1 - 5.10
 #
-# last updated: 2023-05-31
+# last updated: 2024-02-23
 
 ############################################################################
 
-### 5.1: Arrays
+### 5: Arrays and matrices
+
+############################################################################
+
+## 5.1: Arrays
 
 # create a vector with 1500 random draws from a standard normal distribution
 z <- rnorm(1500)
@@ -51,7 +55,7 @@ class(a)
 
 ############################################################################
 
-### 5.2: Array indexing
+## 5.2: Array indexing
 
 # back to the 3*4*2 array, but let's use some more interesting numbers
 a <- round(rnorm(24), digits=3)
@@ -74,7 +78,7 @@ a[c(2,3,8,13)]
 
 ############################################################################
 
-### 5.3: Index matrices
+## 5.3: Index matrices
 
 # create a two-dimension array (i.e., a matrix)
 x <- array(round(rnorm(20), digits=3), dim=c(4,5))
@@ -108,7 +112,7 @@ x[l]
 
 ############################################################################
 
-### 5.4: The array() function
+## 5.4: The array() function
 
 # create an array using array()
 h <- round(rnorm(24), digits=3)
@@ -141,7 +145,7 @@ D
 
 ############################################################################
 
-### 5.5: The outer product of two arrays
+## 5.5: The outer product of two arrays
 
 # an example of creating an outer product
 a <- array(c(2,4,3,1), dim=c(2,2))
@@ -180,7 +184,7 @@ hist(detmat, breaks=seq(-81,81,length=30))
 
 ############################################################################
 
-### 5.6: Generalized transpose of an array
+## 5.6: Generalized transpose of an array
 
 # illustrate transposing with the simple case of a matrix
 A <- array(1:6, dim=c(3,2))
@@ -190,7 +194,7 @@ t(A)
 
 ############################################################################
 
-### 5.7: Matrix facilities
+## 5.7: Matrix facilities
 
 # create a matrix
 A <- matrix(1:6, nrow=3, ncol=2)
@@ -202,7 +206,7 @@ ncol(A)
 # or just use dim()
 dim(A)
 
-## 5.7.1: Matrix multiplication
+# 5.7.1: Matrix multiplication
 
 # create another matrix B which has as many rows as there are columns in A
 B <- matrix(c(7,3,4,6,2,3,8,1), nrow=2, ncol=4)
@@ -223,7 +227,7 @@ diag(A)
 # can use the diag() function to create a k*k-dimensional identity matrix
 diag(5)
 
-## 5.7.2: Linear equations and inversion
+# 5.7.2: Linear equations and inversion
 
 # create a 5x5 matrix with random integers between 1 and 4
 A <- matrix(sample(1:4,25,replace=TRUE), nrow=5, ncol=5)
@@ -247,7 +251,7 @@ solve(A)
 # https://en.wikipedia.org/wiki/Invertible_matrix
 round(A %*% solve(A), digits=6)
 
-## 5.7.3: Eigenvalues and eigenvectors
+# 5.7.3: Eigenvalues and eigenvectors
 
 # copy the mtcars dataset to dat
 dat <- mtcars
@@ -275,7 +279,7 @@ L
 R
 Q %*% L %*% solve(Q)
 
-## 5.7.4: Singular value decomposition and determinants
+# 5.7.4: Singular value decomposition and determinants
 
 # singular value decomposition of the correlation matrix
 # https://en.wikipedia.org/wiki/Singular_value_decomposition
@@ -314,7 +318,7 @@ tr(A)
 # https://en.wikipedia.org/wiki/Determinant_of_a_matrix
 det(A)
 
-## 5.7.5: Least squares fitting and the QR decomposition
+# 5.7.5: Least squares fitting and the QR decomposition
 
 # let's again use the 'mtcars' dataset
 dat <- mtcars
@@ -366,7 +370,7 @@ ans$coefficients
 
 ############################################################################
 
-### 5.8: Forming partitioned matrices, cbind() and rbind()
+## 5.8: Forming partitioned matrices, cbind() and rbind()
 
 # simple example of cbind()
 A <- matrix(1:16, nrow=4, ncol=4)
@@ -384,7 +388,7 @@ cbind(x)
 
 ############################################################################
 
-### 5.9: The concatenation function, c(), with arrays
+## 5.9: The concatenation function, c(), with arrays
 
 # demonstrate what c() does when the input is an array/matrix
 A <- matrix(1:16, nrow=4, ncol=4)
@@ -396,7 +400,7 @@ as.vector(A)
 
 ############################################################################
 
-### 5.10: Frequency tables from factors
+## 5.10: Frequency tables from factors
 
 # let's use again 'mtcars'
 dat <- mtcars

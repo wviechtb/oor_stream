@@ -10,11 +10,15 @@
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
 # - Section(s): 7.1 - 7.4
 #
-# last updated: 2023-07-03
+# last updated: 2024-02-23
 
 ############################################################################
 
-### 7.1: The read.table() function
+### 7: Reading data from files
+
+############################################################################
+
+## 7.1: The read.table() function
 
 # check what the current working directory (folder) is
 getwd()
@@ -43,7 +47,7 @@ dat
 
 ############################################################################
 
-### 7.2: The scan() function
+## 7.2: The scan() function
 
 # read in the data from the houses.txt file using scan(); note: we need to
 # skip the first line since it is the header row that contains the variable
@@ -60,7 +64,7 @@ dat
 
 ############################################################################
 
-### 7.3: Accessing builtin datasets
+## 7.3: Accessing builtin datasets
 
 # see what built-in datasets are currently available
 data()
@@ -78,7 +82,7 @@ ls()
 
 ############################################################################
 
-### 7.4: Editing data
+## 7.4: Editing data
 
 # to inspect a dataset, we can use the View() command
 View(mtcars)
@@ -106,7 +110,7 @@ dat2$Comment[4] <- "blah # blup"
 
 ############################################################################
 
-### Saving data
+## Saving data
 
 # save dat2 as a tab-delimited plain text file to houses_edit.txt without row
 # names and use 'blanks' for missing values (not NA)
@@ -143,7 +147,7 @@ dat2
 
 ############################################################################
 
-### SPSS, Stata, Excel, and other file formats
+## SPSS, Stata, Excel, and other file formats
 
 # the 'R Data Import/Export' manual contains a lot of additional information:
 # https://cran.r-project.org/doc/manuals/r-release/R-data.html

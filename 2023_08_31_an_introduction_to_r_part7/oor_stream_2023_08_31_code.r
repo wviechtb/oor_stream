@@ -10,13 +10,17 @@
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
 # - Section(s): 8.1 - 8.2
 #
-# last updated: 2023-09-07
+# last updated: 2024-02-23
 
 ############################################################################
 
-### 8.1: R as a set of statistical tables
+### 8: Probability distributions
 
-## normal distribution
+############################################################################
+
+## 8.1: R as a set of statistical tables
+
+# normal distribution
 
 # calculate the density of the standard normal distribution for a sequence of
 # values between -4 and 4 and then plot the distribution (note: mean=0 and
@@ -53,7 +57,7 @@ segments(qnorm(.30), 0, qnorm(.30), dnorm(qnorm(.30)))
 # simulate 10 values from a standard normal distribution
 rnorm(10)
 
-## t-distribution
+# t-distribution
 
 # first draw a standard normal distribution again
 xs <- seq(-4, 4, length=10000)
@@ -100,7 +104,7 @@ xs <- seq(-4, -2.23, length=10000)
 ys <- dt(xs, df=20)
 polygon(c(xs,rev(xs)), c(ys,rep(0,10000)), col="lightgray")
 
-## chi-squared distribution
+# chi-squared distribution
 
 # calculate and draw the density of a chi-squared distribution with df=2
 xs <- seq(0, 10, length=10000)
@@ -120,7 +124,7 @@ legend("topright", inset=.01, lty=c("solid","dashed","dotted"), lwd=2,
 # what area of a chi-square distribution with df=1 falls above 3.84
 pchisq(3.84, df=1, lower.tail=FALSE)
 
-## binomial distribution
+# binomial distribution
 
 # compute the probability of seeing 0, 1, ..., 10 tails when flipping a coin
 # 10 times where the probability of a tail is 0.6 (the coin is NOT fair)

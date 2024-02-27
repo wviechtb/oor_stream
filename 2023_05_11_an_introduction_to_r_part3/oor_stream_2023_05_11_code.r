@@ -10,7 +10,7 @@
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
 # - Section(s): 3.1 - 4.3
 #
-# last updated: 2023-05-12
+# last updated: 2024-02-23
 
 ############################################################################
 
@@ -18,7 +18,7 @@
 
 ############################################################################
 
-### 3.1: Intrinsic attributes: mode and length
+## 3.1: Intrinsic attributes: mode and length
 
 # create a numeric vector and check its 'mode'
 x <- c(1, 3, 2, 4, 5, 3)
@@ -173,7 +173,7 @@ as.integer(d)
 
 ############################################################################
 
-### 3.2: Changing the length of an object
+## 3.2: Changing the length of an object
 
 # we can create an empty numeric vector with numeric()
 e <- numeric()
@@ -230,7 +230,7 @@ alpha
 
 ############################################################################
 
-### 3.3: Getting and setting attributes
+## 3.3: Getting and setting attributes
 
 # create a numeric vector and add some attributes to it
 x <- c(2, 4, 3, 1, 6, 8)
@@ -280,7 +280,7 @@ attributes(x)
 
 ############################################################################
 
-### 3.4: The class of an object
+## 3.4: The class of an object
 
 # all of the elements in x are numeric
 mode(x)
@@ -363,7 +363,7 @@ unclass(res)
 
 ############################################################################
 
-### 4.1: A specific example
+## 4.1: A specific example
 
 # create a character vector
 state <- c("tas", "sa",  "qld", "nsw", "nsw", "nt",  "wa",  "wa", "qld",
@@ -385,7 +385,7 @@ levels(statef)
 
 ############################################################################
 
-### 4.2: The function tapply() and ragged arrays
+## 4.2: The function tapply() and ragged arrays
 
 # create a numeric vector with the incomes
 incomes <- c(60, 49, 40, 61, 64, 60, 59, 54, 62, 69, 70, 42, 56, 61, 61, 61,
@@ -434,7 +434,7 @@ split(incomes, statef)
 
 ############################################################################
 
-### 4.3: Ordered factors
+## 4.3: Ordered factors
 
 # create two character vectors
 name  <- c("Bob", "Sue", "Tom", "Gill")

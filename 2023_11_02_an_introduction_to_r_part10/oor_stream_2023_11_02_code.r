@@ -10,11 +10,11 @@
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
 # - Section(s): 11.3 - 11.5
 #
-# last updated: 2023-11-08
+# last updated: 2024-02-23
 
 ############################################################################
 
-## 11.3 Generic functions for extracting model information
+## 11.3: Generic functions for extracting model information
 
 # inspect the mtcars dataset again
 mtcars

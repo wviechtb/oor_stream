@@ -10,11 +10,11 @@
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
 # - Section(s): 11.1 - 11.2
 #
-# last updated: 2023-10-17
+# last updated: 2024-02-23
 
 ############################################################################
 
-### 11.1: Defining statistical models; formulae
+## 11.1: Defining statistical models; formulae
 
 # before we continue, let's look at some examples with categorical predictors;
 # we will again make use of the mtcars dataset
@@ -217,7 +217,7 @@ linearHypothesis(res, hypothesis.matrix=rbind(c(-1,1,0),c(-1,0,1)))
 
 ############################################################################
 
-## 11.1.1 Contrasts
+# 11.1.1 Contrasts
 
 # for quantitative variables, the model matrix just contains a column with
 # their values

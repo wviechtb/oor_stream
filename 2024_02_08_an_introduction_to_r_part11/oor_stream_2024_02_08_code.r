@@ -10,11 +10,11 @@
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
 # - Section(s): 11.6
 #
-# last updated: 2024-02-09
+# last updated: 2024-02-23
 
 ############################################################################
 
-## 11.6 Generalized linear models
+## 11.6: Generalized linear models
 
 # copy the mtcars dataset to dat and inspect the dataset
 
