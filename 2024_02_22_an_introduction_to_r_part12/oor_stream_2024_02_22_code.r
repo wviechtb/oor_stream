@@ -8,9 +8,9 @@
 # Topic(s):
 # - An Introduction to R
 #   https://cran.r-project.org/doc/manuals/r-release/R-intro.html
-# - Section(s): 11.6
+# - Section(s): 11.7
 #
-# last updated: 2024-02-27
+# last updated: 2024-03-07
 
 ############################################################################
 
