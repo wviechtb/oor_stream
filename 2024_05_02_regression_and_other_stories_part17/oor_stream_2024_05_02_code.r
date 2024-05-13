@@ -9,7 +9,7 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 8.1
 #
-# last updated: 2024-05-03
+# last updated: 2024-05-09
 
 ############################################################################
 
@@ -269,17 +269,17 @@ mlefun <- function(par, xvals, yvals, log=FALSE) {
 
 as <- seq(1.4, 3.2, length=100)
 bs <- seq(0.2, 0.7, length=100)
-ll <- matrix(NA, nrow=length(as), ncol=length(bs))
+ls <- matrix(NA, nrow=length(as), ncol=length(bs))
 
 for (i in 1:length(as)) {
    for (j in 1:length(bs)) {
-      ll[i,j] <- mlefun(c(as[i], bs[j]), xvals=x, yvals=y)
+      ls[i,j] <- mlefun(c(as[i], bs[j]), xvals=x, yvals=y)
    }
 }
 
 # create a perspective plot of the likelihood surface (like Figure 8.1(a),
 # except that we are using the simulated data from above)
-persp(as, bs, ll)
+persp(as, bs, ls)
 
 # install the ellipse package
 #install.packages("ellipse")
@@ -293,7 +293,7 @@ library(ellipse)
 # coefficient (recall that this encompasses 68% of the distribution of a normal
 # distribution); we also add the contour ellipse that encompasses 68% of the
 # joint distribution of the two coefficients assuming bivariate normality
-filled.contour(as, bs, ll, color.palette=hcl.colors,
+filled.contour(as, bs, ls, color.palette=hcl.colors,
                xlab="Intercept", ylab="Slope",
                plot.axes = {
                   axis(side=1)
@@ -341,5 +341,13 @@ vcoef
 # maximum likelihood estimation (dividing either by n-2 or n); if we correct the
 # inverse of the negative Hessian by n / (n-2), we get the same var-cov matrix
 n / (n-2) * solve(-H)
+
+## Bayesian inference
+
+# we will implement the ideas discussed here next time
+
+## Point estimate, mode-based approximation, and posterior simulations
+
+# as above
 
 ############################################################################
