@@ -9,11 +9,11 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 8.2 - 8.5
 #
-# last updated: 2024-05-13
+# last updated: 2024-05-16
 
 ############################################################################
 
-### 8.2 Influence of individual points in a fitted regression
+### 8.2: Influence of individual points in a fitted regression
 
 # we can rewrite equation (8.3) as follows:
 #
