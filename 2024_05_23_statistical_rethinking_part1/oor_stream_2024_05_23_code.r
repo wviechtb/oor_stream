@@ -9,7 +9,7 @@
 # - Statistical Rethinking (https://xcelab.net/rm/)
 # - Section(s): 1.1 - 1.4
 #
-# last updated: 2024-05-24
+# last updated: 2024-06-06
 
 ############################################################################
 
@@ -21,7 +21,7 @@
 # https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started#configuring-c-toolchain
 
 # install the rstan package
-install.package("rstan")
+install.packages("rstan")
 
 # install some additional packages needed
 install.packages(c("coda","mvtnorm","remotes","dagitty"))
