@@ -9,13 +9,13 @@
 # - Statistical Rethinking (https://xcelab.net/rm/)
 # - Section(s): 2.4
 #
-# last updated: 2024-07-05
+# last updated: 2024-09-05
 
 ############################################################################
 
 ### 2.4: Making the model go
 
-## 2.4.1. Bayes’ theorem
+## 2.4.1: Bayes’ theorem
 
 # as we saw last time, the likelihood function for seeing 6 times water out of
 # 9 globe tosses can be computed based on a binomial distribution where the
