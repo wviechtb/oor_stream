@@ -9,7 +9,7 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 11.1 - 11.3
 #
-# last updated: 2024-10-10
+# last updated: 2024-10-17
 
 ############################################################################
 
@@ -101,6 +101,8 @@ b_hat <- coef(res)
 b_hat
 abline(b_hat[1],            b_hat[3],            col="darkgray", lwd=5)
 abline(b_hat[1] + b_hat[2], b_hat[3] + b_hat[4], col="black",    lwd=5)
+legend("topleft", inset=.02, col=c("black","darkgray"), lwd=5, pch=20,
+       legend=c("Mom completed high-school", "Mom did not complete high-school"))
 
 ## Displaying uncertainty in the fitted regression
 
@@ -144,7 +146,7 @@ abline(res, lwd=5)
 res <- stan_glm(kid_score ~ mom_hs + mom_iq, data=dat, refresh=0)
 res
 
-# save the median of the samples values for the regression coefficients
+# save the median of the sampled values for the regression coefficients
 b_hat <- coef(res)
 
 # save the sampled values from the posterior distributions
