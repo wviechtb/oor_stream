@@ -9,7 +9,7 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 9.1 - 9.3
 #
-# last updated: 2024-05-22
+# last updated: 2024-12-13
 
 ############################################################################
 
@@ -109,12 +109,12 @@ plot(density(adivb), xlim=c(0,50))
 
 ## Point prediction using predict
 
-# note that coef() gives the median of the intercept and slope and we could
-# use these values to make point predictions
+# note that coef() gives the median of the sampled values for the intercept
+# and slope and we could use these values to make point predictions
 coef(res)
 tab
 
-# so we can make the point prediction manually as follows
+# so we can make a point prediction manually as follows
 coef(res)[[1]] + coef(res)[[2]] * 2.0
 
 # but this is not exactly what predict() does
@@ -126,16 +126,42 @@ y_point_pred
 # lines and then takes the mean of those values
 mean(post[[1]] + post[[2]] * 2.0)
 
+# careful: there is some inconsistent behavior of predict() when specifying
+# 'newdata' versus when not specifying this; consider the first data point
+head(dat, 1)
+
+# predict(res) gives the predicted values of the given data, so the following
+# gives the predicted value when growth = 2.4
+predict(res)[1]
+
+# this also gives the predicted value
+predict(res, newdata=data.frame(growth=2.4))
+
+# note that they are slightly different! this is because predict(res) uses the
+# median coefficient values to compute the predicted value
+coef(res)[[1]] + coef(res)[[2]] * 2.4
+
+# but as noted above, when specifying 'newdata', predict() computes all
+# predicted values (based on the various intercept and slope values) and then
+# takes the mean; this is quite confusing/inconsisten behavior (although the
+# difference is negligible here)
+
 ## Linear predictor with uncertainty using posterior_linpred or posterior_epred
 
-# posterior_linpred() does the same thing, but gives the individual predictions
+# posterior_linpred() does the same thing as predict(), but gives the
+# individual predictions (based on the various intercept and slope values)
 y_linpred <- posterior_linpred(res, newdata=x_new)
 head(y_linpred)
 
-# taking their mean again gives the same value
+# taking their mean again gives the same value as predict(res, newdata=x_new)
 mean(y_linpred[,1])
 
-# but now we can also visualize the posterior for the predicted value
+# note that posterior_linpred() does not show this inconsistent behavior when
+# specifying 'newdata' versus not; so using posterior_linpred() is preferable
+head(posterior_linpred(res, newdata=data.frame(growth=2.4)))
+head(posterior_linpred(res)[,1,drop=FALSE])
+
+# now we can now also visualize the posterior for the predicted value
 plot(density(y_linpred[,1]))
 
 # and compute other summary statistics
@@ -162,11 +188,15 @@ mad(y_pred[,1])
 # mean and the predicted value of an individual election, the uncertainty in
 # predicting the result of an individual election is much larger
 
+# note that running posterior_predict() multiple times yields different values
+head(posterior_predict(res, newdata=x_new))
+head(posterior_predict(res, newdata=x_new))
+
 # visualize the posterior for the predicted value of an individual election
 # and also add the posterior for the mean
 plot(density(y_pred[,1]), col="dodgerblue", lwd=3, ylim=c(0,.40), main="", bty="l")
 lines(density(y_linpred[,1]), col="firebrick", lwd=3)
-legend("topright", inset=.02, lwd=3, col=c("dodgerblue", "firebrick"),
+legend("topright", inset=.02, lwd=3, col=c("firebrick", "dodgerblue"),
        legend=c("Posterior for E(y|x=2.0)", "Posterior for y|x=2.0"))
 
 # do the prediction of y|x=2.0 manually

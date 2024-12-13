@@ -9,7 +9,7 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 11.6
 #
-# last updated: 2024-11-11
+# last updated: 2024-12-12
 
 ############################################################################
 
@@ -54,7 +54,7 @@ sd(resid)
 n <- nrow(dat)
 sqrt(sum(resid^2)/(n-2)) # = sigma()
 sqrt(sum(resid^2)/(n-1)) # = sd(resid)
-sqrt(sum(resid^2)/(n-0)) # = mean(abs(resid))
+sqrt(sum(resid^2)/(n-0)) # = sqrt(mean(resid^2))
 
 # compute R^2 based on equation (11.1)
 round(1 - var(resid) / var(dat$kid_score), digits=2)
@@ -320,6 +320,46 @@ round(ncp.hi / (ncp.hi + p-1 + n-p + 1), digits=2)
 
 # this yields the same interval as we obtained earlier using the Bayesian
 # approach (this is not true in general, but works out nicely here)
+
+############################################################################
+
+# sidenote: we could also use bootstrapping to obtain a CI for R^2 (see
+# section 5.4 for a discussion of bootstrapping)
+
+# draw samples with replacement from the original dataset, compute R^2 based
+# on the model fitted to this bootstrap sample, and repeat this 10,000 times
+r2.b <- replicate(10000, {
+   dat.b <- dat[sample(nrow(dat), nrow(dat), replace=TRUE),]
+   res.b <- lm(kid_score ~ mom_iq + mom_hs, data=dat.b)
+   summary(res.b)$r.squared
+})
+
+# compute the 2.5% and 97.5% percentiles from the boostrap distribution of R^2
+round(quantile(r2.b, c(.025, .975)), digits=2)
+
+# this yields again the same interval as we obtained above using the other
+# methods (although in smaller samples, there might be more of a difference)
+
+# we can also use the 'boot' package for the bootstrapping
+library(boot)
+
+# function that takes the original data as input and a vector of indices that
+# define the bootstrap sample and that then computes the statistic of interest
+# based on the bootstrap sample
+r2fun <- function(x, idx) {
+   dat.b <- x[idx,]
+   res.b <- lm(kid_score ~ mom_iq + mom_hs, data=dat.b)
+   summary(res.b)$r.squared
+}
+
+# run the bootstrapping with boot()
+res <- boot(dat, statistic=r2fun, R=10000)
+res
+
+# get the percentile (and various other types of) confidence intervals for R^2
+boot.ci(res)
+
+############################################################################
 
 # we can even use this to draw an entire distribution for the non-centrality
 # parameter, by simply computing the density of an F-distribution for the
