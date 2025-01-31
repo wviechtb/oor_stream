@@ -9,7 +9,7 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 11.7 - 11.8
 #
-# last updated: 2024-12-13
+# last updated: 2025-01-30
 
 ############################################################################
 
@@ -111,7 +111,7 @@ pred.m18 <- posterior_predict(res.m18, newdata=dat[18,])
 # on equation (11.6)
 sims.all <- as.data.frame(res.all)
 condpred <- data.frame(y=seq(0,9,length.out=100))
-condpred$x <- sapply(condpred$y, FUN=function(y) mean(dnorm(y, sims.all[,1] + sims.all[,2]*18, sims.all[,3])))
+condpred$density <- sapply(condpred$y, FUN=function(y) mean(dnorm(y, sims.all[,1] + sims.all[,2]*18, sims.all[,3])))
 
 # histogram of the predicted values we obtain above
 hist(pred.all[,1], freq=FALSE, breaks=50, main="", xlab="Score")
@@ -120,7 +120,7 @@ hist(pred.all[,1], freq=FALSE, breaks=50, main="", xlab="Score")
 lines(density(pred.all[,1]), lwd=3, col="dodgerblue")
 
 # superimpose the posterior predictive distribution from equation (11.6)
-lines(condpred$y, condpred$x, lwd=3, bty="l", col="firebrick")
+lines(condpred$y, condpred$density, lwd=3, bty="l", col="firebrick")
 
 # these match up quite closely
 
@@ -130,12 +130,15 @@ abline(res.all, lwd=3)
 abline(res.m18, lwd=3, lty="dashed", col="gray")
 
 # add the predictive distribution from the model using all data points
-lines(condpred$x*6+18, condpred$y, lwd=3, bty="l")
+lines(condpred$density*6+18, condpred$y, lwd=3, bty="l")
+abline(v=18)
+segments(18, mean(pred.all), max(condpred$density*6+18), mean(pred.all))
 
 # add the predictive distribution from the model leaving out the 18th data point
 sims.m18 <- as.data.frame(res.m18)
-condpred$x <- sapply(condpred$y, FUN=function(y) mean(dnorm(y, sims.m18[,1] + sims.m18[,2]*18, sims.m18[,3])))
-lines(condpred$x*6+18, condpred$y, lwd=3, bty="l", lty="dashed", col="gray")
+condpred$density <- sapply(condpred$y, FUN=function(y) mean(dnorm(y, sims.m18[,1] + sims.m18[,2]*18, sims.m18[,3])))
+lines(condpred$density*6+18, condpred$y, lwd=3, bty="l", lty="dashed", col="gray")
+segments(18, mean(pred.m18), max(condpred$density*6+18), mean(pred.m18), lty="dashed", col="gray")
 
 # Figure 11.20(b): show the residuals from the fitted model when using all
 # data for model fitting (black points) and when doing leave-one-out model
@@ -273,6 +276,7 @@ X <- mvrnorm(n, mu=rep(0,k), Sigma=S)
 b <- c(-1,1,2, rep(0,k-3))
 y <- X %*% b + rnorm(n, mean=0, sd=2)
 dat <- data.frame(X, y)
+head(dat)
 
 # fit the model predicting y from all other variables in dat
 res1 <- stan_glm(y ~ ., prior=normal(0, 10), data=dat, refresh=0)
