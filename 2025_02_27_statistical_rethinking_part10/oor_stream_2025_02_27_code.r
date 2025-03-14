@@ -9,7 +9,7 @@
 # - Statistical Rethinking (https://xcelab.net/rm/)
 # - Section(s): 5.1
 #
-# last updated: 2025-03-04
+# last updated: 2025-03-13
 
 ############################################################################
 
@@ -112,8 +112,8 @@ lines(A_seq, mu.mean, lwd=2)
 shade(mu.pi, A_seq)
 
 # show the x- and y-values on the original scale
-plot(D ~ A, data=dat, pch=21, bg="gray", xlab="Median age at marriage (std)",
-     ylab="Divorce rate (std)", bty="l", xaxt="n", yaxt="n")
+plot(D ~ A, data=dat, pch=21, bg="gray", xlab="Median age at marriage",
+     ylab="Divorce rate", bty="l", xaxt="n", yaxt="n")
 axis(side=1, at=((23:30) - mean(dat$MedianAgeMarriage)) / sd(dat$MedianAgeMarriage), labels=23:30)
 axis(side=2, at=((6:14) - mean(dat$Divorce)) / sd(dat$Divorce), labels=6:14)
 lines(A_seq, mu.mean, lwd=2)
@@ -138,6 +138,8 @@ precis(res2, prob=0.95)
 
 # load the dagitty package
 library(dagitty)
+
+# see also the dagitty website: https://www.dagitty.net
 
 # draw the DAG described in the book
 dag1 <- dagitty("dag{A -> D; A -> M; M -> D}")
@@ -290,10 +292,10 @@ abline(v=0, lty="dashed")
 
 ############################################################################
 
-# digression: when going back to a more traditional frequentist framework, we
-# can see the same idea at play and in fact get exact equivalence between the
-# coefficients from the full regression model and the models where we use
-# residuals to predict the outcome
+# digression: when going back to a more traditional frequentist framework
+# (using ordinary least squares estimation), we can see the same idea at play
+# and in fact get exact equivalence between the coefficients from the full
+# regression model and the models where we use residuals to predict the outcome
 
 # full model predicting D from A and M
 res <- lm(Divorce ~ MedianAgeMarriage + Marriage, data=dat)
@@ -333,6 +335,21 @@ points(mu_mean ~ D, data=dat, pch=21, bg="gray")
 # using identify(), can left-click on points to label them (use right click to stop labeling)
 #identify(x=dat$D, y=mu_mean, labels=dat$Loc)
 
+############################################################################
+
+# digression: examining the association between the predicted versus observed
+# values is actually something that we are already familiar with from an
+# ordinary least squares context; it turns out that the squared correlation
+# between predicted and observed values (i.e., how much variance in the
+# observed values is 'accounted for' by the predicted values -- or vice-versa)
+# is identical to R^2 from the regression model
+
+res <- lm(Divorce ~ MedianAgeMarriage + Marriage, data=dat)
+summary(res)
+cor(predict(res), dat$Divorce)^2
+
+############################################################################
+
 # simulate actual new observations (again no new data, so uses original data)
 # and compute 95% prediction intervals based on these simulated data
 D_sim <- sim(res3, n=10000)
@@ -343,7 +360,7 @@ D_pi  <- apply(D_sim, 2, PI, prob=0.95)
 # course more variable than that; therefore the prediction intervals for raw
 # data are quite a bit wider and overlap much more often with the diagonal
 # reference line (where observed = predicted)
-segments(dat$D, D_PI[1,], dat$D, D_PI[2,])
+segments(dat$D, D_pi[1,], dat$D, D_pi[2,])
 
 # to make the distinction between the two intervals clearer, let's manually do
 # what link() and sim() are doing for the first state; for this, we extract
@@ -407,7 +424,9 @@ sim2_dat <- data.frame(A=(c(20,30)-26.1)/1.24)
 s2 <- sim(res3, data=sim2_dat, vars=c("M","D"))
 mean(s2$D[,2] - s2$D[,1])
 
-# simulate new data for the case where M is manipulated
+# simulate new data for the case where M is manipulated (note: if we imagine
+# we could manipulate M, then A no longer influences M, so here we set A to
+# some value, for example 0, corresponding to an 'average state')
 sim_dat <- data.frame(M=seq(from=-2, to=2, length.out=30), A=0)
 s <- sim(res3, data=sim_dat, vars="D")
 
