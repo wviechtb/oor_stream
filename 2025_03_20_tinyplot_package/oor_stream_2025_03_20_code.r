@@ -8,7 +8,7 @@
 # Topic(s):
 # - the tinyplot package
 #
-# last updated: 2025-03-21+
+# last updated: 2025-04-01
 
 ############################################################################
 
@@ -20,6 +20,7 @@
 # relevant links:
 # - https://cran.r-project.org/package=tinyplot
 # - https://grantmcdermott.com/tinyplot/
+# - https://github.com/grantmcdermott/tinyplot
 
 # install the tinyplot package from CRAN
 #install.packages("tinyplot")
@@ -95,7 +96,8 @@ legend("bottomright", pch=c(19,17,15), lwd=5, col=cols.t, legend=species,
 
 # add text at the top
 mtext("Flipper and bill length", side=3, adj=0, line=2.5, cex=1.2)
-mtext("Dimensions for Adelie, Chinstrap, and Gentoo Penguins at Palmer Station LTER", side=3, adj=0, line=1.2, cex=1)
+mtext("Dimensions for Adelie, Chinstrap, and Gentoo Penguins at Palmer Station LTER",
+      side=3, adj=0, line=1.2, cex=1)
 
 ############################################################################
 
@@ -196,15 +198,16 @@ plt_add(type="p", pch=21, col="black", bg="by", lwd=1)
 # filled in (maybe this is a small bug?!?)
 plt(Temp ~ Day | Month, data=dat, type="o", lwd=2, pch=21, fill="by")
 
-# but this works (without the black outline of the points)
+# but this works
 plt(Temp ~ Day | Month, data=dat, type="o", lwd=2, pch=19)
 
-# in principle, if the grouping variable is an ordered factor, then a
-# sequential ("viridis") palette should be used automatically, but this does
-# not seem to work correctly at the moment
+# if the grouping variable is an ordered factor, then a sequential palette is
+# used automatically (e.g., viridis or agSunset depending on the theme used;
+# for examaple, the 'clean' theme uses the agSunset palette)
 plt(Temp ~ Day | ordered(Month), data=dat, pch=19)
 
-# we could work around this here by manually specifying the desired palette
+# we can also manually specify the desired palette (irrespective of whether
+# the factor is ordered or not)
 plt(Temp ~ Day | Month, data=dat, type="o", lwd=2, pch=19, palette="viridis")
 
 ############################################################################
@@ -247,8 +250,8 @@ plt(distance ~ age, data=dat, pch=19, facet = ~ Subject, frame=FALSE, ylim=c(15,
 library(lattice)
 xyplot(distance ~ age | Subject, data=dat, pch=19, ylim=c(10,40),
        panel = function(x, y, ...) {
-         panel.grid(h = -1, v = -1, lty="dotted")
-         panel.xyplot(x, y, ...)
+          panel.grid(h = -1, v = -1, lty="dotted")
+          panel.xyplot(x, y, ...)
        })
 
 ############################################################################
