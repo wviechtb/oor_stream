@@ -9,7 +9,7 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 12.7 - 12.8
 #
-# last updated: 2025-04-08
+# last updated: 2025-04-15
 
 ############################################################################
 
@@ -57,7 +57,7 @@ plotpost <- function(mat) {
 
    op <- par(mar=c(4,6,2,2), las=1)
    plot(NA, xlim=range(mat), ylim=c(1,ncol(mat)), yaxt="n", bty="l", xlab="", ylab="")
-   abline(v=0, lty="dotted")
+   abline(v=0, lwd=4, col="gray90")
 
    for (i in 1:ncol(mat)) {
       tmp <- density(mat[,i], n=4096)
@@ -70,7 +70,7 @@ plotpost <- function(mat) {
       pos75 <- which.min(abs(tmp$x - q75))
       y0 <- ncol(mat)+1-i
       polygon(c(tmp$x[pos25:pos75], rev(tmp$x[pos25:pos75])), c(y0+tmp$y[pos25:pos75], rep(y0, pos75-pos25+1)), col="gray90", border=NA)
-      segments(tmp$x[pos50], y0, tmp$x[pos50], y0+tmp$y[pos50], lwd=3)
+      segments(tmp$x[pos50], y0, tmp$x[pos50], y0+tmp$y[pos50], lwd=3, col="gray30")
       cutoffs <- quantile(mat[,i], prob=c(0.005,0.995))
       tmp$y <- tmp$y[tmp$x > cutoffs[1] & tmp$x < cutoffs[2]]
       tmp$x <- tmp$x[tmp$x > cutoffs[1] & tmp$x < cutoffs[2]]
@@ -87,12 +87,11 @@ plotpost <- function(mat) {
 # of the coefficients for the predictor variables
 plotpost(post)
 
-# make a copy of the dataset and standardize all of the predictors
-dat2 <- dat
-dat2[,predictors] <- scale(dat2[,predictors])
+# standardize all of the predictors
+dat[,predictors] <- scale(dat[,predictors])
 
 # fit the model with all predictors standardized
-res1 <- stan_glm(G3mat ~ ., data=dat2, refresh=0)
+res1 <- stan_glm(G3mat ~ ., data=dat, refresh=0)
 print(res1, digits=2)
 
 # obtain information about the priors used in the model
@@ -105,7 +104,7 @@ prior_summary(res1)
 # give the regression coefficients normal priors with SD equal to 2.5
 
 # refit the model with specified priors
-res1 <- stan_glm(G3mat ~ ., data=dat2, refresh=0, prior=normal(location=0, scale=2.5))
+res1 <- stan_glm(G3mat ~ ., data=dat, refresh=0, prior=normal(location=0, scale=2.5))
 print(res1, digits=2)
 
 # check that the priors are now correct
@@ -154,9 +153,13 @@ loo1
 #
 # and so SD(E[y])  = 2.5 * sqrt(p)
 
+# number of model coefficients / predictors
+p <- length(coef(res1)) - 1
+p
+
 # so in the present case, the standard deviation of the predicted mean based
 # on the prior distributions is approximately
-musd <- 2.5 * sqrt(26)
+musd <- 2.5 * sqrt(p)
 round(musd, digits=2)
 
 # the default prior for sigma is an exponential distribution, scaled to have a
@@ -173,43 +176,60 @@ musd^2 / (musd^2 + sdy^2)
 # to generate a whole prior distribution for R^2, we simulate sigma2 and beta
 # values from their respective prior distributions many times and compute R^2
 # for each of the simulated values
-priorR2 <- replicate(4000, {
-   sigma2 <- rexp(1, rate=0.3)^2
-   beta   <- rnorm(26, mean=0, sd=2.5)
-   muvar  <- var(as.matrix(dat2[,predictors]) %*% beta)
+priorR2a <- replicate(80000, {
+   sigma2 <- rexp(1, rate=1/sdy)^2
+   beta   <- rnorm(p, mean=0, sd=2.5)
+   muvar  <- var(as.matrix(dat[,predictors]) %*% beta)
    muvar / (muvar + sigma2)
 })
 
 # Figure 12.11a (top): plot the prior distribution for R^2
-hist(priorR2, breaks=seq(0,1,by=.01), main="Prior Distribution of R^2", xlab="")
+hist(priorR2a, breaks=seq(0,1,by=.01), main="Prior Distribution of R^2", xlab="")
 
 # Figure 12.11a (bottom): plot the posterior distribution for R^2
 hist(postR2, breaks=seq(0,1,by=.01), main="Posterior Distribution of R^2", xlab="")
+
+# we now want to check that the prior distribution for R^2 generated above
+# matches what stan_glm() is actually using; with prior_PD=TRUE, we can
+# instruct stan_glm() to obtain samples from the prior distributions (we also
+# increase the number of samples taken)
+res1p <- stan_glm(G3mat ~ ., data=dat, refresh=0,
+                  prior=normal(location=0, scale=2.5),
+                  prior_PD=TRUE, iter=40000)
+
+# extract the samples from the prior distributions
+priorR2b <- bayes_R2(res1p)
+
+# draw kernel density estimates based on priorR2a and priorR2b (they match!)
+d.priorR2a <- density(priorR2a, from=0, to=1)
+d.priorR2b <- density(priorR2b, from=0, to=1)
+plot(d.priorR2a, lwd=3, col="dodgerblue", bty="l", main="")
+lines(d.priorR2b, lwd=3, col="firebrick")
 
 # now say we assume a priori that the best we might be able to do is to
 # account for about 30% of the variance (so R^2 =~ 0.30); then we can set the
 # SD of the prior distributions for beta to sqrt(R^2 / p) * sd(y) and the mean
 # of the exponential distribution for sigma to sqrt(1-R^2) * sd(y), in which
 # case we will get the desired R^2 back
-sdbeta <- sqrt(0.3 / 26) * sdy
-musd   <- sdbeta * sqrt(26)
+sdbeta <- sqrt(0.3 / p) * sdy
+musd   <- sdbeta * sqrt(p)
 esd    <- sqrt(1-0.3) * sdy
 musd^2 / (musd^2 + esd^2)
 
 # generate a whole prior distribution for R^2 using the new priors
-priorR2 <- replicate(4000, {
+priorR2a <- replicate(80000, {
    sigma2 <- rexp(1, rate=1/esd)^2
-   beta   <- rnorm(26, mean=0, sd=sdbeta)
-   muvar  <- var(as.matrix(dat2[,predictors]) %*% beta)
+   beta   <- rnorm(p, mean=0, sd=sdbeta)
+   muvar  <- var(as.matrix(dat[,predictors]) %*% beta)
    muvar / (muvar + sigma2)
 })
 
 # Figure 12.11b (top): plot the prior distribution for R^2
-hist(priorR2, breaks=seq(0,1,by=.01), main="Prior Distribution of R^2", xlab="")
+hist(priorR2a, breaks=seq(0,1,by=.01), main="Prior Distribution of R^2", xlab="")
 
 # fit the model with the new priors
-res2 <- stan_glm(G3mat ~ ., data=dat2, refresh=0,
-                 prior=normal(scale=sdbeta),
+res2 <- stan_glm(G3mat ~ ., data=dat, refresh=0,
+                 prior=normal(location=0, scale=sdbeta),
                  prior_aux=exponential(rate=1/esd))
 print(res2, digits=2)
 
@@ -236,15 +256,32 @@ round(median(loo_R2(res2)), digits=2)
 # Figure 12.12a: Plot of the posterior distributions with the new prior
 plotpost(post)
 
+# now let's compare again the manual computation of priorR2a with what
+# stan_glm() uses to ensure they match
+res2p <- stan_glm(G3mat ~ ., data=dat, refresh=0,
+                 prior=normal(location=0, scale=sdbeta),
+                 prior_aux=exponential(rate=1/esd),
+                 prior_PD=TRUE, iter=40000)
+
+# extract the samples from the prior distributions
+priorR2b <- bayes_R2(res2p)
+
+# draw kernel density estimates based on priorR2a and priorR2b (they match!)
+d.priorR2a <- density(priorR2a, from=0, to=1)
+d.priorR2b <- density(priorR2b, from=0, to=1)
+plot(d.priorR2a, lwd=3, col="dodgerblue", bty="l", main="")
+lines(d.priorR2b, lwd=3, col="firebrick")
+
 # generate a prior distribution for R^2 using the horseshoe prior (code from
-# https://avehtari.github.io/ROS-Examples/Student/student.html with some
-# adjustments / corrections)
+# https://avehtari.github.io/ROS-Examples/Student/student.html with corrections
+# based on Piironen & Vehtari, 2017; https://doi.org/10.1214/17-EJS1337SI)
+
 p0 <- 6
-p <- length(predictors)
-n <- nrow(dat2)
-slab_scale <- sd(dat2$G3mat) / sqrt(p0) * sqrt(0.3)
-priorR2 <- replicate(4000, {
-   sigma2 <- rexp(1, rate=1/(sqrt(1-0.3)*sdy))^2
+n <- nrow(dat)
+slab_scale <- sdy / sqrt(p0) * sqrt(0.3)
+esd <- sqrt(1-0.3) * sdy
+priorR2a <- replicate(80000, {
+   sigma2 <- rexp(1, rate=1/esd)^2
    global_scale <- p0 / (p-p0) * sqrt(sigma2) / sqrt(n)
    lambda <- rcauchy(p)
    tau <- rcauchy(1, scale=global_scale)
@@ -252,21 +289,33 @@ priorR2 <- replicate(4000, {
    c <- slab_scale * sqrt(c2)
    lambda_tilde <- sqrt(c^2 * lambda^2 / (c^2 + tau^2*lambda^2))
    beta <- rnorm(p, mean = 0, sd = lambda_tilde * abs(tau))
-   muvar <- var(as.matrix(dat2[,predictors]) %*% beta)
+   muvar <- var(as.matrix(dat[,predictors]) %*% beta)
    muvar / (muvar + sigma2)
 })
 
-# note: the description in the book is not detailed enough to determine if the
-# above fully matches up with what stan_glm() does when using such a prior as
-# is done below (the paper by Piironen & Vehtari, 2017, gives further details,
-# but requires very careful reading; https://doi.org/10.1214/17-EJS1337SI)
-
 # Figure 12.11c (top): plot the prior distribution for R^2
-hist(priorR2, breaks=seq(0,1,by=.01), main="Prior Distribution of R^2", xlab="")
+hist(priorR2a, breaks=seq(0,1,by=.01), main="Prior Distribution of R^2", xlab="")
 
-# fit the model
-global_scale <- (p0/(p-p0)) / sqrt(n) # without sigma, as the scaling by sigma is done inside stan_glm
-res3 <- stan_glm(G3mat ~ ., data=dat2, prior=hs(global_scale=global_scale, slab_scale=slab_scale), refresh=0)
+# compare again the manual computation of priorR2a with what stan_glm() uses
+global_scale <- p0 / (p-p0) / sqrt(n) # without sigma, as the scaling by sigma is done inside stan_glm()
+res3p <- stan_glm(G3mat ~ ., data=dat,
+                 prior=hs(global_scale=global_scale, slab_scale=slab_scale, slab_df=1),
+                 prior_aux=exponential(rate=1/esd),
+                 prior_PD=TRUE, iter=40000)
+
+# extract the samples from the prior distributions
+priorR2b <- bayes_R2(res3p)
+
+# draw kernel density estimates based on priorR2a and priorR2b (they match!)
+d.priorR2a <- density(priorR2a, from=0, to=1)
+d.priorR2b <- density(priorR2b, from=0, to=1)
+plot(d.priorR2a, lwd=3, col="dodgerblue", bty="l", main="")
+lines(d.priorR2b, lwd=3, col="firebrick")
+
+# fit the model using the horseshoe prior
+res3 <- stan_glm(G3mat ~ ., data=dat, refresh=0,
+                 prior=hs(global_scale=global_scale, slab_scale=slab_scale, slab_df=1),
+                 prior_aux=exponential(rate=1/esd))
 print(res3, digits=2)
 
 # obtain information about the priors used in the model
@@ -284,8 +333,11 @@ round(median(loo_R2(res3)), digits=2)
 # Figure 12.12b: Plot of the posterior distributions with the new prior
 plotpost(post)
 
+# Figure 12.11c (bottom): plot the posterior distribution for R^2
+hist(postR2, breaks=seq(0,1,by=.01), main="Posterior Distribution of R^2", xlab="")
+
 # model that only includes selected predictors
-res4 <- stan_glm(G3mat ~ failures + schoolsup + goout + absences, data=dat2, refresh=0)
+res4 <- stan_glm(G3mat ~ failures + schoolsup + goout + absences, data=dat, refresh=0)
 print(res4, digits=2)
 
 # compare the Bayesian and leave-one-out R^2
