@@ -9,7 +9,7 @@
 # - Regression and Other Stories (https://avehtari.github.io/ROS-Examples/)
 # - Section(s): 13.1 - 13.3
 #
-# last updated: 2025-04-29
+# last updated: 2025-05-15
 
 ############################################################################
 
@@ -149,7 +149,7 @@ par(op)
 
 ############################################################################
 
-### 13.2 Interpreting logistic regression coefficients and the divide-by-4 rule
+### 13.2: Interpreting logistic regression coefficients and the divide-by-4 rule
 
 ## Evaluation at and near the mean of the data
 
@@ -303,7 +303,7 @@ abline(h=0, lty="dotted")
 
 ############################################################################
 
-### 13.3 Predictions and comparisons
+### 13.3: Predictions and comparisons
 
 # read in the dataset again
 dat <- read.table("nes.txt", header=TRUE)
